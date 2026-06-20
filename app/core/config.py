@@ -8,6 +8,8 @@ class Settings(BaseSettings):
 
     TEMPERATURE: float = 0.3
 
+    QDRANT_URL: str
+
     class Config:
         env_file = ".env"
 
