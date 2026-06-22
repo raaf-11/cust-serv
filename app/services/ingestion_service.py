@@ -1,13 +1,7 @@
 from pathlib import Path
-
-from app.services.embedding_service import (
-    embedding_service
-)
-
-from app.services.qdrant_service import (
-    qdrant_service
-)
-
+from app.services.embedding_service import (embedding_service)
+from app.services.qdrant_service import (qdrant_service)
+from app.services.pdf_service import (pdf_service)
 
 class IngestionService:
 
@@ -17,13 +11,7 @@ class IngestionService:
         source_type: str = "document"
     ):
 
-        with open(
-            file_path,
-            "r",
-            encoding="utf-8"
-        ) as file:
-
-            text = file.read()
+        text = pdf_service.extract_text(file_path)
 
         chunks = [
             chunk.strip()

@@ -66,3 +66,12 @@ def search_test():
     )
 
     return results
+
+from app.core.config import settings
+
+@router.get("/count")
+def count_points():
+
+    return qdrant_service.client.count(
+        collection_name=settings.QDRANT_COLLECTION_NAME
+    )
