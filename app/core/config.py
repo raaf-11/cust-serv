@@ -10,6 +10,10 @@ class Settings(BaseSettings):
 
     QDRANT_URL: str
 
+    QDRANT_COLLECTION_NAME: str = "knowledge_base"
+    
+    EMBEDDING_DIMENSION: int = 384
+
     class Config:
         env_file = ".env"
 

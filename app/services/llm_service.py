@@ -1,4 +1,5 @@
 import httpx
+from pathlib import Path
 
 from app.core.config import settings
 
@@ -9,12 +10,33 @@ FALLBACK_RESPONSE = (
 
 class LLMService:
 
+    def _load_system_prompt(self) -> str:
+
+        prompt_path = Path(
+            "app/prompts/support_prompt.txt"
+        )
+
+        return prompt_path.read_text(
+            encoding="utf-8"
+        )
+
     async def generate_response(
         self,
-        system_prompt: str,
-        user_message: str,
-        temperature: float
+        context: str,
+        question: str
     ) -> str:
+
+        system_prompt = self._load_system_prompt()
+
+        user_prompt = f"""
+Context:
+
+{context}
+
+Question:
+
+{question}
+"""
 
         headers = {
             "Authorization": f"Bearer {settings.OPENROUTER_API_KEY}",
@@ -30,12 +52,14 @@ class LLMService:
                 },
                 {
                     "role": "user",
-                    "content": user_message
+                    "content": user_prompt
                 }
             ],
-            "temperature": temperature
+            "temperature": settings.TEMPERATURE
         }
+
         try:
+
             async with httpx.AsyncClient() as client:
 
                 response = await client.post(
@@ -59,7 +83,6 @@ class LLMService:
 
         except Exception:
             return FALLBACK_RESPONSE
-
 
 
 llm_service = LLMService()
