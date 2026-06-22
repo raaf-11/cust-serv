@@ -2,6 +2,7 @@ from pathlib import Path
 from app.services.embedding_service import (embedding_service)
 from app.services.qdrant_service import (qdrant_service)
 from app.services.pdf_service import (pdf_service)
+from app.services.chunking_service import (chunking_service)
 
 class IngestionService:
 
@@ -13,11 +14,11 @@ class IngestionService:
 
         text = pdf_service.extract_text(file_path)
 
-        chunks = [
-            chunk.strip()
-            for chunk in text.split("\n\n")
-            if chunk.strip()
-        ]
+        chunks = chunking_service.chunk_text(text)
+
+        print("Number of chunks:",len(chunks))
+
+        print(chunks[0])
 
         vectors = embedding_service.embed_batch(
             chunks
