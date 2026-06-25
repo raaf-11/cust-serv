@@ -14,6 +14,8 @@ class Settings(BaseSettings):
     
     EMBEDDING_DIMENSION: int = 384
 
+    DATABASE_URL: str
+
     class Config:
         env_file = ".env"
 

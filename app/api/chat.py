@@ -24,5 +24,6 @@ async def chat(
 ):
 
     return await chat_service.process_message(
-        request.message
+        session_id=request.session_id,
+        message=request.message
     )

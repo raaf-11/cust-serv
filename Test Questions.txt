@@ -1,0 +1,34 @@
+Test Questions
+Security
+
+How long is the password reset link valid?
+
+Expected answer: 15 minutes
+
+Warranty
+
+How long is the standard warranty for laptops?
+
+Expected answer: 2 years
+
+Refunds
+
+How long does a UPI refund take?
+
+Expected answer: 3–5 business days
+
+Shipping
+
+How many delivery attempts are made?
+
+Expected answer: 3 attempts
+
+Employees
+
+How many earned leave days do employees get?
+
+Expected answer: 18 days annually
+
+Technical Support
+
+My laptop is running slowly. What should I do?

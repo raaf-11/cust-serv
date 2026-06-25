@@ -23,12 +23,17 @@ class LLMService:
     async def generate_response(
         self,
         context: str,
+        history: str,
         question: str
     ) -> str:
 
         system_prompt = self._load_system_prompt()
 
         user_prompt = f"""
+Conversation History:
+
+{history}
+
 Context:
 
 {context}
