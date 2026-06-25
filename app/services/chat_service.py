@@ -2,19 +2,35 @@ from app.schemas.chat import ChatResponse
 from app.services.llm_service import llm_service
 from app.services.retrieval_service import retrieval_service
 from app.services.conversation_service import conversation_service
-
+from fastapi import HTTPException
+from app.services.chat_session_service import (chat_session_service)
 
 class ChatService:
 
     async def process_message(
         self,
         session_id: int,
+        user_id: int,
         message: str
     ) -> ChatResponse:
+
+        session = chat_session_service.get_session(
+            session_id=session_id,
+            user_id=user_id
+            )
+
+        if session is None:
+
+        raise HTTPException(
+            status_code=403,
+            detail="You do not have access to this chat session."
+        )
 
         context = retrieval_service.retrieve(
             message
         )
+
+        
         history = (
         conversation_service
         .get_recent_conversations(
@@ -31,7 +47,7 @@ class ChatService:
         )
         conversation_service.save_conversation(
             session_id=session_id,
-            user_id=1,
+            user_id=user_id,
             message=message,
             answer=answer
         )

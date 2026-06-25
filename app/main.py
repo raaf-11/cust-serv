@@ -7,6 +7,7 @@ from app.api.embedding import (router as embedding_router)
 from app.api.ingestion import (router as ingestion_router)
 from app.api.retrieval import (router as retrieval_router)
 from app.api.chat_session import router as chat_session_router
+from app.api.auth import router as auth_router
 
 app = FastAPI(
     title="Customer Support Copilot"
@@ -19,3 +20,4 @@ app.include_router(embedding_router)
 app.include_router(ingestion_router)
 app.include_router(retrieval_router)
 app.include_router(chat_session_router)
+app.include_router(auth_router)

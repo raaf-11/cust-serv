@@ -29,5 +29,25 @@ class ChatSessionService:
 
         return session_id
 
+    def get_session(
+    self,
+    session_id: int,
+    user_id: int
+):
+
+        db = SessionLocal()
+
+        session = (
+        db.query(ChatSession)
+        .filter(
+            ChatSession.id == session_id,
+            ChatSession.user_id == user_id
+        )
+        .first()
+    )
+
+        db.close()
+
+        return session
 
 chat_session_service = ChatSessionService()
