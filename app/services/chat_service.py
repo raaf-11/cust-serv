@@ -21,30 +21,28 @@ class ChatService:
 
         if session is None:
 
-        raise HTTPException(
-            status_code=403,
-            detail="You do not have access to this chat session."
+            raise HTTPException(
+                status_code=403,
+                detail="You do not have access to this chat session."
+            )
+        
+        history = (
+            conversation_service
+            .get_recent_conversations(session_id=session_id)
         )
+        print("HISTORY:")
+        print(history)
 
         context = retrieval_service.retrieve(
             message
         )
-
-        
-        history = (
-        conversation_service
-        .get_recent_conversations(
-            session_id=session_id
-            )
-        )
-        print("HISTORY:")
-        print(history)
 
         answer = await llm_service.generate_response(
             context=context,
             history=history,
             question=message
         )
+
         conversation_service.save_conversation(
             session_id=session_id,
             user_id=user_id,
