@@ -93,8 +93,10 @@ class AuthService:
         db.close()
 
         return TokenResponse(
-        access_token=token
+            access_token=token,
+            user_id=user.id,
+            name=user.name,
+            email=user.email
         )
-
 
 auth_service = AuthService()
