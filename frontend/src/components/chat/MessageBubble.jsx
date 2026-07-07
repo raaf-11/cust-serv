@@ -1,28 +1,28 @@
-export default function MessageBubble({ message }) {
+export default function MessageBubble({
+    message,
+    role,
+}) {
+
     return (
         <div
             style={{
-                display: "flex",
-                justifyContent:
-                    message.role === "user"
+                alignSelf:
+                    role === "user"
                         ? "flex-end"
                         : "flex-start",
-                marginBottom: "12px",
+
+                padding: "12px",
+                borderRadius: "10px",
+
+                background:
+                    role === "user"
+                        ? "#f5d76e"
+                        : "#efefef",
+
+                maxWidth: "70%",
             }}
         >
-            <div
-                style={{
-                    maxWidth: "70%",
-                    padding: "10px 14px",
-                    borderRadius: "10px",
-                    background:
-                        message.role === "user"
-                            ? "#f4d35e"
-                            : "#f5f5f5",
-                }}
-            >
-                {message.content}
-            </div>
+            {message}
         </div>
     );
 }

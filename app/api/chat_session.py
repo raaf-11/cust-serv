@@ -16,7 +16,7 @@ router = APIRouter(
 
 @router.post(
     "/",
-    response_model=int
+    response_model=SessionResponse
 )
 def create_session(
     current_user: User = Depends(

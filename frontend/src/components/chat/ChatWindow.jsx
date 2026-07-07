@@ -1,20 +1,18 @@
-import MessageBubble from "./MessageBubble";
+import EmptyState from "./EmptyState";
 
-export default function ChatWindow({ messages }) {
+export default function ChatWindow() {
+
     return (
         <div
             style={{
                 flex: 1,
-                overflowY: "auto",
+                display: "flex",
+                flexDirection: "column",
                 padding: "20px",
+                overflowY: "auto",
             }}
         >
-            {messages.map((message, index) => (
-                <MessageBubble
-                    key={index}
-                    message={message}
-                />
-            ))}
+            <EmptyState />
         </div>
     );
 }

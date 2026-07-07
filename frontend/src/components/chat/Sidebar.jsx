@@ -1,32 +1,42 @@
+import SessionList from "./SessionList";
+
 export default function Sidebar({
-    sessionId,
+    sessions,
+    selectedSession,
+    onSelectSession,
     onNewChat,
-    onLogout,
 }) {
+
     return (
-        <div
+        <aside
             style={{
-                width: "260px",
+                width: "280px",
                 borderRight: "1px solid #ddd",
                 display: "flex",
                 flexDirection: "column",
                 padding: "20px",
-                gap: "12px",
+                gap: "20px",
             }}
         >
+
             <button onClick={onNewChat}>
-                New Chat
+                + New Chat
             </button>
 
-            <div>
-                <strong>Current Session</strong>
+            <SessionList
+                sessions={sessions}
+                selectedSession={selectedSession}
+                onSelectSession={onSelectSession}
+            />
 
-                <p>{sessionId || "None"}</p>
-            </div>
-
-            <button onClick={onLogout}>
+            <button
+                style={{
+                    marginTop: "auto",
+                }}
+            >
                 Logout
             </button>
-        </div>
+
+        </aside>
     );
 }

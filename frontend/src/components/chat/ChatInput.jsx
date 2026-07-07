@@ -1,43 +1,20 @@
-import { useState } from "react";
-
-export default function ChatInput({ onSend }) {
-    const [message, setMessage] = useState("");
-
-    const handleSubmit = (e) => {
-        e.preventDefault();
-
-        if (!message.trim()) return;
-
-        onSend(message);
-
-        setMessage("");
-    };
+export default function ChatInput() {
 
     return (
-        <form
-            onSubmit={handleSubmit}
+        <div
             style={{
-                display: "flex",
+                borderTop: "1px solid #ddd",
                 padding: "20px",
-                gap: "10px",
             }}
         >
             <input
                 type="text"
-                placeholder="Type a message..."
-                value={message}
-                onChange={(e) =>
-                    setMessage(e.target.value)
-                }
+                placeholder="Ask anything..."
                 style={{
-                    flex: 1,
-                    padding: "10px",
+                    width: "100%",
+                    padding: "12px",
                 }}
             />
-
-            <button type="submit">
-                Send
-            </button>
-        </form>
+        </div>
     );
 }

@@ -9,7 +9,7 @@ class ChatSessionService:
         self,
         user_id: int,
         title: str = "New Chat"
-    ) -> int:
+    ) -> ChatSession:
 
         db = SessionLocal()
 
@@ -21,12 +21,9 @@ class ChatSessionService:
         db.add(session)
         db.commit()
         db.refresh(session)
-
-        session_id = session.id
-
         db.close()
+        return session
 
-        return session_id
 
     def get_session(
         self,

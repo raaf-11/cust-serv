@@ -1,66 +1,52 @@
 import { useEffect, useState } from "react";
 
-import { useAuth } from "../context/AuthContext";
-
 import Sidebar from "../components/chat/Sidebar";
 import ChatWindow from "../components/chat/ChatWindow";
 import ChatInput from "../components/chat/ChatInput";
 
 import {
+    getSessions,
     createSession,
-    sendMessage,
 } from "../services/chat";
 
 export default function Chat() {
-    const { logout } = useAuth();
 
-    const [sessionId, setSessionId] = useState(null);
-    const [messages, setMessages] = useState([]);
+    const [sessions, setSessions] = useState([]);
+    const [selectedSession, setSelectedSession] = useState(null);
 
     useEffect(() => {
-        handleNewChat();
+        loadSessions();
     }, []);
 
-    const handleNewChat = async () => {
+    const loadSessions = async () => {
         try {
-            const session = await createSession();
+            const data = await getSessions();
 
-            setSessionId(sessionId);
+            setSessions(data);
 
-            setMessages([]);
+            if (data.length > 0) {
+                setSelectedSession(data[0]);
+            }
+
         } catch (err) {
             console.error(err);
         }
     };
 
-    const handleSend = async (text) => {
-        if (!sessionId) return;
-
-        const userMessage = {
-            role: "user",
-            content: text,
-        };
-
-        setMessages((prev) => [...prev, userMessage]);
+    const handleNewChat = async () => {
 
         try {
-            const response = await sendMessage(
-                sessionId,
-                text
-            );
 
-            const aiMessage = {
-                role: "assistant",
-                content: response.answer,
-            };
+            const session = await createSession();
 
-            setMessages((prev) => [
-                ...prev,
-                aiMessage,
-            ]);
+            await loadSessions();
+
+            setSelectedSession(session);
+
         } catch (err) {
             console.error(err);
         }
+
     };
 
     return (
@@ -71,22 +57,23 @@ export default function Chat() {
             }}
         >
             <Sidebar
-                sessionId={sessionId}
+                sessions={sessions}
+                selectedSession={selectedSession}
+                onSelectSession={setSelectedSession}
                 onNewChat={handleNewChat}
-                onLogout={logout}
             />
 
-            <div
+            <main
                 style={{
+                    flex: 1,
                     display: "flex",
                     flexDirection: "column",
-                    flex: 1,
                 }}
             >
-                <ChatWindow messages={messages} />
+                <ChatWindow />
 
-                <ChatInput onSend={handleSend} />
-            </div>
+                <ChatInput />
+            </main>
         </div>
     );
 }
