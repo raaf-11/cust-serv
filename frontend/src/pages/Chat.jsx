@@ -1,45 +1,92 @@
+import { useEffect, useState } from "react";
+
 import { useAuth } from "../context/AuthContext";
 
-function Chat() {
+import Sidebar from "../components/chat/Sidebar";
+import ChatWindow from "../components/chat/ChatWindow";
+import ChatInput from "../components/chat/ChatInput";
 
-    const {
+import {
+    createSession,
+    sendMessage,
+} from "../services/chat";
 
-        user,
+export default function Chat() {
+    const { logout } = useAuth();
 
-        logout
+    const [sessionId, setSessionId] = useState(null);
+    const [messages, setMessages] = useState([]);
 
-    } = useAuth();
+    useEffect(() => {
+        handleNewChat();
+    }, []);
+
+    const handleNewChat = async () => {
+        try {
+            const session = await createSession();
+
+            setSessionId(sessionId);
+
+            setMessages([]);
+        } catch (err) {
+            console.error(err);
+        }
+    };
+
+    const handleSend = async (text) => {
+        if (!sessionId) return;
+
+        const userMessage = {
+            role: "user",
+            content: text,
+        };
+
+        setMessages((prev) => [...prev, userMessage]);
+
+        try {
+            const response = await sendMessage(
+                sessionId,
+                text
+            );
+
+            const aiMessage = {
+                role: "assistant",
+                content: response.answer,
+            };
+
+            setMessages((prev) => [
+                ...prev,
+                aiMessage,
+            ]);
+        } catch (err) {
+            console.error(err);
+        }
+    };
 
     return (
+        <div
+            style={{
+                display: "flex",
+                height: "100vh",
+            }}
+        >
+            <Sidebar
+                sessionId={sessionId}
+                onNewChat={handleNewChat}
+                onLogout={logout}
+            />
 
-        <div>
-
-            <h1>
-
-                Welcome {user?.name}
-
-            </h1>
-
-            <p>
-
-                {user?.email}
-
-            </p>
-
-            <button
-
-                onClick={logout}
-
+            <div
+                style={{
+                    display: "flex",
+                    flexDirection: "column",
+                    flex: 1,
+                }}
             >
+                <ChatWindow messages={messages} />
 
-                Logout
-
-            </button>
-
+                <ChatInput onSend={handleSend} />
+            </div>
         </div>
-
     );
-
 }
-
-export default Chat;
