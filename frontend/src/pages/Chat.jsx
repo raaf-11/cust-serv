@@ -1,22 +1,41 @@
 import { useEffect, useState } from "react";
-
+import { useNavigate } from "react-router-dom";
+import { useAuth } from "../context/AuthContext";
 import Sidebar from "../components/chat/Sidebar";
 import ChatWindow from "../components/chat/ChatWindow";
 import ChatInput from "../components/chat/ChatInput";
 
+
+
 import {
     getSessions,
     createSession,
+    getMessages,
+    sendMessage,
+    deleteSession
 } from "../services/chat";
+
 
 export default function Chat() {
 
     const [sessions, setSessions] = useState([]);
     const [selectedSession, setSelectedSession] = useState(null);
+    const [messages, setMessages] = useState([]);
+    const [loading, setLoading] = useState(false);
+    const navigate = useNavigate();
+    const { logout } = useAuth();
 
     useEffect(() => {
         loadSessions();
     }, []);
+
+    const handleLogout = () => {
+
+        logout();
+
+        navigate("/");
+
+    };
 
     const loadSessions = async () => {
         try {
@@ -25,7 +44,7 @@ export default function Chat() {
             setSessions(data);
 
             if (data.length > 0) {
-                setSelectedSession(data[0]);
+                loadMessages(data[0]);
             }
 
         } catch (err) {
@@ -49,6 +68,70 @@ export default function Chat() {
 
     };
 
+    const loadMessages = async (session) => {
+
+        try {
+
+            const data = await getMessages(session.id);
+
+            setMessages(data);
+
+            setSelectedSession(session);
+
+        } 
+        catch (err) {
+
+            console.error(err);
+
+        }
+
+    };
+
+    const handleSend = async (text) => {
+
+        if (!selectedSession) return;
+
+        setLoading(true);
+
+        try {
+
+            await sendMessage(
+                selectedSession.id,
+                text
+            );
+
+            await loadMessages(selectedSession);
+            await loadSessions();
+
+        } 
+        catch (err) {
+
+            console.error(err);
+
+        } 
+        finally {
+
+            setLoading(false);
+
+        }
+
+    };
+    const handleDeleteSession = async (sessionId) => {
+
+        try {
+
+            await deleteSession(sessionId);
+
+            await loadSessions();
+
+        }catch (err) {
+
+            console.error(err);
+
+        }
+
+    };
+
     return (
         <div
             style={{
@@ -59,8 +142,10 @@ export default function Chat() {
             <Sidebar
                 sessions={sessions}
                 selectedSession={selectedSession}
-                onSelectSession={setSelectedSession}
+                onSelectSession={loadMessages}
                 onNewChat={handleNewChat}
+                onDelete={handleDeleteSession}
+                 onLogout={handleLogout}
             />
 
             <main
@@ -70,9 +155,13 @@ export default function Chat() {
                     flexDirection: "column",
                 }}
             >
-                <ChatWindow />
+                <ChatWindow
+                messages={messages}
+                 />
 
-                <ChatInput />
+                <ChatInput 
+                    onSend={handleSend}
+                    disabled={loading}/>
             </main>
         </div>
     );

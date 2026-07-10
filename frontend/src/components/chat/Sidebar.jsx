@@ -5,6 +5,8 @@ export default function Sidebar({
     selectedSession,
     onSelectSession,
     onNewChat,
+    onDelete,
+    onLogout,
 }) {
 
     return (
@@ -27,9 +29,11 @@ export default function Sidebar({
                 sessions={sessions}
                 selectedSession={selectedSession}
                 onSelectSession={onSelectSession}
+                onDelete={onDelete}
             />
 
             <button
+                onClick={onLogout}
                 style={{
                     marginTop: "auto",
                 }}

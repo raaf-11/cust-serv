@@ -4,6 +4,7 @@ export default function SessionList({
     sessions,
     selectedSession,
     onSelectSession,
+    onDelete
 }) {
 
     return (
@@ -25,6 +26,7 @@ export default function SessionList({
                     onClick={() =>
                         onSelectSession(session)
                     }
+                    onDelete={onDelete}
                 />
 
             ))}

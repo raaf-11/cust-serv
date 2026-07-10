@@ -119,12 +119,41 @@ class ChatSessionService:
             db.close()
             return False
 
+        (
+        db.query(Conversation)
+        .filter(
+        Conversation.session_id == session_id
+        )
+        .delete()
+        )
+
         db.delete(session)
+
         db.commit()
 
         db.close()
 
         return True
+
+    def update_title(
+    self,
+    session_id: int,
+    title: str
+    ):
+
+        db = SessionLocal()
+
+        session = (
+            db.query(ChatSession)
+            .filter(ChatSession.id == session_id)
+            .first()
+        )
+
+        if session:
+            session.title = title
+            db.commit()
+
+        db.close()
 
 
 chat_session_service = ChatSessionService()

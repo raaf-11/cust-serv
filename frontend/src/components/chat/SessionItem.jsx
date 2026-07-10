@@ -1,29 +1,40 @@
+
 export default function SessionItem({
     session,
     selected,
     onClick,
+    onDelete,
 }) {
-
     return (
-
-        <button
-            onClick={onClick}
+        <div
             style={{
-                textAlign: "left",
-                padding: "12px",
-                background:
-                    selected
-                        ? "#f5d76e"
-                        : "white",
-
-                border: "1px solid #ddd",
-                borderRadius: "8px",
-
-                cursor: "pointer",
+                display: "flex",
+                gap: "8px",
             }}
         >
-            {session.title}
-        </button>
+            <button
+                onClick={onClick}
+                style={{
+                    flex: 1,
+                    textAlign: "left",
+                    padding: "12px",
+                    background: selected ? "#f5d76e" : "white",
+                    border: "1px solid #ddd",
+                    borderRadius: "8px",
+                    cursor: "pointer",
+                }}
+            >
+                {session.title}
+            </button>
 
+            <button
+                onClick={(e) => {
+                    e.stopPropagation();
+                    onDelete(session.id);
+                }}
+            >
+                🗑
+            </button>
+        </div>
     );
 }

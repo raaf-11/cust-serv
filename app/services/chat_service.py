@@ -18,6 +18,17 @@ class ChatService:
             session_id=session_id,
             user_id=user_id
             )
+        if session.title == "New Chat":
+
+            title = message.strip()
+
+            if len(title) > 40:
+                title = title[:37] + "..."
+
+            chat_session_service.update_title(
+                session_id=session.id,
+                title=title
+            )
 
         if session is None:
 
