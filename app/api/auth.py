@@ -5,6 +5,9 @@ from app.schemas.auth import (
     TokenResponse
 )
 from app.services.auth_service import auth_service
+from app.dependencies.auth import require_employee
+
+
 
 router = APIRouter(
     prefix="/auth",

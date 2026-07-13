@@ -1,7 +1,6 @@
-from fastapi import Depends, HTTPException
+from fastapi import Depends, HTTPException, status
 from fastapi.security import HTTPAuthorizationCredentials
 from fastapi.security import HTTPBearer
-
 from app.db.database import SessionLocal
 from app.models.user import User
 from app.core.security import security_service
@@ -48,3 +47,14 @@ def get_current_user(
         )
 
     return user
+
+def require_employee(
+    current_user=Depends(get_current_user),
+):
+    if current_user.role != "EMPLOYEE":
+        raise HTTPException(
+            status_code=status.HTTP_403_FORBIDDEN,
+            detail="Employee access required",
+        )
+
+    return current_user

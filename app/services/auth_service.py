@@ -36,7 +36,8 @@ class AuthService:
         user = User(
             name=request.name,
             email=request.email,
-            hashed_password=hashed_password
+            hashed_password=hashed_password,
+            role="CUSTOMER"
         )
 
         db.add(user)
@@ -96,7 +97,8 @@ class AuthService:
             access_token=token,
             user_id=user.id,
             name=user.name,
-            email=user.email
+            email=user.email,
+            role=user.role,
         )
 
 auth_service = AuthService()

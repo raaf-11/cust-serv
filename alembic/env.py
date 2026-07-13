@@ -7,7 +7,7 @@ from alembic import context
 
 from app.core.config import settings
 from app.db.database import Base
-
+from app.models.ticket import Ticket
 from app.models.user import User
 from app.models.conversation import Conversation
 from app.models.chat_session import ChatSession

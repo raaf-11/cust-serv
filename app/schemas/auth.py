@@ -34,3 +34,5 @@ class TokenResponse(BaseModel):
     name: str
 
     email: str
+
+    role: str
