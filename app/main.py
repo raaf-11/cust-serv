@@ -9,6 +9,9 @@ from app.api.ingestion import router as ingestion_router
 from app.api.retrieval import router as retrieval_router
 from app.api.chat_session import router as chat_session_router
 from app.api.auth import router as auth_router
+from app.db.database import Base, engine
+
+Base.metadata.create_all(bind=engine)
 
 app = FastAPI(
     title="Customer Support Copilot"
