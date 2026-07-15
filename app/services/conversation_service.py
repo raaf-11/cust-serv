@@ -2,36 +2,31 @@ from app.db.database import SessionLocal
 from app.models.conversation import Conversation
 
 
-
 class ConversationService:
 
     def save_conversation(
         self,
         session_id: int,
-        user_id: int,
-        message: str,
-        answer: str
+        sender: str,
+        content: str
     ):
 
         db = SessionLocal()
 
         conversation = Conversation(
             session_id=session_id,
-            user_id=user_id,
-            message=message,
-            answer=answer
+            sender=sender,
+            content=content
         )
 
         db.add(conversation)
-
         db.commit()
-
         db.close()
 
     def get_recent_conversations(
         self,
         session_id: int,
-        limit: int = 5
+        limit: int = 10
     ) -> str:
 
         db = SessionLocal()
@@ -56,8 +51,8 @@ class ConversationService:
 
         for conversation in conversations:
             history += (
-                f"User: {conversation.message}\n"
-                f"Assistant: {conversation.answer}\n\n"
+                f"{conversation.sender}: "
+                f"{conversation.content}\n"
             )
 
         return history

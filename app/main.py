@@ -10,6 +10,11 @@ from app.api.retrieval import router as retrieval_router
 from app.api.chat_session import router as chat_session_router
 from app.api.auth import router as auth_router
 from app.db.database import Base, engine
+from app.models.user import User
+from app.models.chat_session import ChatSession
+from app.models.conversation import Conversation
+from app.models.ticket import Ticket
+from app.api.employee import router as employee_router
 
 Base.metadata.create_all(bind=engine)
 
@@ -36,3 +41,4 @@ app.include_router(retrieval_router)
 app.include_router(chat_session_router)
 app.include_router(auth_router)
 app.include_router(ticket_router)
+app.include_router(employee_router)

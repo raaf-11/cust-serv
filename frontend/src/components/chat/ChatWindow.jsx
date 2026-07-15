@@ -24,29 +24,17 @@ export default function ChatWindow({
 
             {messages.map((conversation) => (
 
-                <div
+                <MessageBubble
                     key={conversation.id}
-                    style={{
-                        display: "flex",
-                        flexDirection: "column",
-                        gap: "12px",
-                    }}
-                >
+                    role={
+                    conversation.sender === "USER"
+                    ? "user"
+                    : "assistant"
+                }
+                    message={conversation.content}
+            />
 
-                    <MessageBubble
-                        role="user"
-                        message={conversation.message}
-                    />
-
-                    <MessageBubble
-                        role="assistant"
-                        message={conversation.answer}
-                    />
-
-                </div>
-
-            ))}
-
+        ))}
         </div>
 
     );

@@ -21,6 +21,12 @@ class TicketResponse(BaseModel):
 
     id: int
 
+    user_id: int
+
+    assigned_employee_id: int | None
+
+    session_id: int
+
     subject: str
 
     description: str
@@ -28,6 +34,8 @@ class TicketResponse(BaseModel):
     status: str
 
     created_at: datetime
+
+    updated_at: datetime
 
     model_config = {
         "from_attributes": True

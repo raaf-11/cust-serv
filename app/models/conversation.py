@@ -1,5 +1,3 @@
-from datetime import datetime
-
 from sqlalchemy import (
     Column,
     Integer,
@@ -7,9 +5,9 @@ from sqlalchemy import (
     DateTime,
     ForeignKey
 )
-
+from datetime import datetime
 from app.db.database import Base
-from app.models.user import User
+from sqlalchemy import DateTime
 
 class Conversation(Base):
 
@@ -21,24 +19,18 @@ class Conversation(Base):
         index=True
     )
 
-    user_id = Column(
+    session_id = Column(
         Integer,
-        ForeignKey("users.id"),
+        ForeignKey("chat_sessions.id"),
         nullable=False
     )
 
-    session_id = Column(
-    Integer,
-    ForeignKey("chat_sessions.id"),
-    nullable=False
-    )
-
-    message = Column(
+    sender = Column(
         String,
         nullable=False
     )
 
-    answer = Column(
+    content = Column(
         String,
         nullable=False
     )

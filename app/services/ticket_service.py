@@ -83,5 +83,25 @@ class TicketService:
 
         return ticket
 
+    def get_active_ticket(
+    self,
+    session_id: int
+    ):
+
+        db = SessionLocal()
+
+        ticket = (
+            db.query(Ticket)
+            .filter(
+                Ticket.session_id == session_id,
+                Ticket.status == "IN_PROGRESS"
+            )
+        .   first()
+        )
+
+        db.close()
+
+        return ticket
+
 
 ticket_service = TicketService()

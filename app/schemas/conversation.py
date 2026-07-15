@@ -4,9 +4,15 @@ from pydantic import BaseModel
 
 
 class ConversationResponse(BaseModel):
+
     id: int
-    message: str
-    answer: str
+
+    session_id: int
+
+    sender: str
+
+    content: str
+
     created_at: datetime
 
     model_config = {

@@ -4,9 +4,7 @@ import { useAuth } from "../context/AuthContext";
 import Sidebar from "../components/chat/Sidebar";
 import ChatWindow from "../components/chat/ChatWindow";
 import ChatInput from "../components/chat/ChatInput";
-
-
-
+import EscalateModal from "../components/tickets/EscalatedModal";
 import {
     getSessions,
     createSession,
@@ -24,6 +22,8 @@ export default function Chat() {
     const [loading, setLoading] = useState(false);
     const navigate = useNavigate();
     const { logout } = useAuth();
+    const [showEscalateModal, setShowEscalateModal] = useState(false);
+    
 
     useEffect(() => {
         loadSessions();
@@ -159,9 +159,46 @@ export default function Chat() {
                 messages={messages}
                  />
 
-                <ChatInput 
-                    onSend={handleSend}
-                    disabled={loading}/>
+                <>
+            <ChatInput
+                onSend={handleSend}
+                disabled={loading}
+            />
+
+            {selectedSession && (
+
+            <div
+                style={{
+                padding: 15,
+                display: "flex",
+                justifyContent: "center",
+            }}
+            >
+
+                <button
+                    onClick={() =>
+                        setShowEscalateModal(true)
+                    }
+                >
+                    Escalate to Human
+                </button>
+
+            </div>
+
+            )}
+
+            <EscalateModal
+
+                open={showEscalateModal}
+
+                sessionId={selectedSession?.id}
+
+                onClose={() =>
+                    setShowEscalateModal(false)
+            }
+
+            />
+</>
             </main>
         </div>
     );
