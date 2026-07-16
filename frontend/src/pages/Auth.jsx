@@ -58,13 +58,21 @@ function Auth() {
 
                         name: response.data.name,
 
-                        email: response.data.email
+                        email: response.data.email,
+
+                        role: response.data.role
 
                     }
 
                 );
 
-                navigate("/chat");
+                if (response.data.role === "EMPLOYEE"){
+                    navigate("/employee");
+                }
+                else{
+                    navigate("/chat");
+                }
+                
 
             }
 

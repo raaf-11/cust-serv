@@ -29,6 +29,20 @@ export default function Chat() {
         loadSessions();
     }, []);
 
+    useEffect(() => {
+
+        if (!selectedSession) return;
+
+            const interval = setInterval(() => {
+
+            loadMessages(selectedSession);
+
+        }, 2000);
+
+        return () => clearInterval(interval);
+
+    }, [selectedSession]);
+
     const handleLogout = () => {
 
         logout();
