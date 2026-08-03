@@ -22,6 +22,10 @@ class Settings(BaseSettings):
 
     ACCESS_TOKEN_EXPIRE_MINUTES: int = 60
 
+    ELASTICSEARCH_URL: str
+
+    ELASTICSEARCH_INDEX: str = "knowledge_base"
+
     class Config:
         env_file = ".env"
 

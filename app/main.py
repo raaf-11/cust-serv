@@ -2,7 +2,6 @@ from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 from app.api.ticket import router as ticket_router
 from app.api.chat import router as chat_router
-from app.api.health import router as health_router
 from app.api.qdrant import router as qdrant_router
 from app.api.embedding import router as embedding_router
 from app.api.ingestion import router as ingestion_router
@@ -33,7 +32,6 @@ app.add_middleware(
 )
 
 app.include_router(chat_router)
-app.include_router(health_router)
 app.include_router(qdrant_router)
 app.include_router(embedding_router)
 app.include_router(ingestion_router)
