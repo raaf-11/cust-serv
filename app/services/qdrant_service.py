@@ -1,4 +1,5 @@
 import uuid
+
 from qdrant_client import QdrantClient
 from qdrant_client.models import (
     Distance,
@@ -8,12 +9,16 @@ from qdrant_client.models import (
 
 from app.core.config import settings
 
+
 class QdrantService:
 
     def __init__(self):
         self.client = QdrantClient(
             url=settings.QDRANT_URL
         )
+
+        # Ensure the collection exists whenever the application starts
+        self.create_collection()
 
     def get_collections(self):
         return self.client.get_collections()
@@ -38,11 +43,16 @@ class QdrantService:
             )
         )
 
+        print(f"Created collection: {settings.QDRANT_COLLECTION_NAME}")
+
     def store_point(
         self,
         vector: list[float],
         payload: dict
     ) -> str:
+
+        # Ensure collection exists
+        self.create_collection()
 
         point_id = str(uuid.uuid4())
 
@@ -60,28 +70,35 @@ class QdrantService:
         return point_id
 
     def store_points(
-        self,
-        vectors: list[list[float]],
-        payloads: list[dict]
-    ):
+    self,
+    vectors: list[list[float]],
+    payloads: list[dict]
+):
+    """
+    Store multiple vectors in Qdrant.
 
-        points = []
+    Each payload MUST already contain an 'id' field.
+    That same ID will later be used inside Elasticsearch.
+    """
 
-        for vector, payload in zip(vectors, payloads):
+    self.create_collection()
 
-            points.append(
-                PointStruct(
-                    id=str(uuid.uuid4()),
-                    vector=vector,
-                    payload=payload
-                )
+    points = []
+
+    for vector, payload in zip(vectors, payloads):
+
+        points.append(
+            PointStruct(
+                id=payload["id"],
+                vector=vector,
+                payload=payload
             )
-
-        self.client.upsert(
-            collection_name=settings.QDRANT_COLLECTION_NAME,
-            points=points
         )
 
+    self.client.upsert(
+        collection_name=settings.QDRANT_COLLECTION_NAME,
+        points=points
+    )
     def search(
         self,
         query_vector: list[float],
@@ -95,14 +112,12 @@ class QdrantService:
         )
 
         return results.points
-    
 
     def delete_collection(self):
 
         self.client.delete_collection(
             collection_name=settings.QDRANT_COLLECTION_NAME
         )
-    
 
 
 qdrant_service = QdrantService()

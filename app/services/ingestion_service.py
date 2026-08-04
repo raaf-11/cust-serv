@@ -1,8 +1,11 @@
+import uuid
 from pathlib import Path
-from app.services.embedding_service import (embedding_service)
-from app.services.qdrant_service import (qdrant_service)
-from app.services.pdf_service import (pdf_service)
-from app.services.chunking_service import (chunking_service)
+
+from app.services.embedding_service import embedding_service
+from app.services.qdrant_service import qdrant_service
+from app.services.pdf_service import pdf_service
+from app.services.chunking_service import chunking_service
+
 
 class IngestionService:
 
@@ -16,7 +19,7 @@ class IngestionService:
 
         chunks = chunking_service.chunk_text(text)
 
-        print("Number of chunks:",len(chunks))
+        print("Number of chunks:", len(chunks))
 
         print(chunks[0])
 
@@ -30,12 +33,11 @@ class IngestionService:
             file_path
         ).name
 
-        for index, chunk in enumerate(
-            chunks
-        ):
+        for index, chunk in enumerate(chunks):
 
             payloads.append(
                 {
+                    "id": str(uuid.uuid4()),
                     "text": chunk,
                     "document_name": filename,
                     "chunk_index": index,
