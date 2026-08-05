@@ -26,6 +26,8 @@ class Settings(BaseSettings):
 
     ELASTICSEARCH_INDEX: str = "knowledge_base"
 
+    DEBUG_RETRIEVAL: bool = True
+
     class Config:
         env_file = ".env"
 

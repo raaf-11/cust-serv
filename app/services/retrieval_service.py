@@ -1,10 +1,5 @@
-from app.services.embedding_service import (
-    embedding_service
-)
-
-from app.services.qdrant_service import (
-    qdrant_service
-)
+from app.retrieval.hybrid_retriever import hybrid_retriever
+from app.utils.retrieval_debugger import RetrievalDebugger
 
 
 class RetrievalService:
@@ -12,29 +7,27 @@ class RetrievalService:
     def retrieve(
         self,
         question: str,
-        limit: int = 5
+        candidate_count: int = 20,
+        final_count: int = 5
     ) -> str:
+        """
+        Retrieves the most relevant context for the user's question
+        using Hybrid RAG.
+        """
 
-        query_vector = embedding_service.embed(
-            question
+        retrieved_documents = hybrid_retriever.retrieve(
+            query=question,
+            candidate_count=candidate_count,
+            final_count=final_count
         )
 
-        results = qdrant_service.search(
-            query_vector=query_vector,
-            limit=limit
-        )
+        chunks = [
+            document["text"]
+            for document in retrieved_documents
+        ]
 
-        chunks = []
-
-        for point in results:
-
-            chunks.append(
-                point.payload["text"]
-            )
-
-        context = "\n\n".join(
-            chunks
-        )
+        context = "\n\n".join(chunks)
+        RetrievalDebugger.print_context(context)
 
         return context
 

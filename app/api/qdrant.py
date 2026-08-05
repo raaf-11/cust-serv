@@ -75,3 +75,8 @@ def count_points():
     return qdrant_service.client.count(
         collection_name=settings.QDRANT_COLLECTION_NAME
     )
+
+@router.delete("/collection")
+def delete_collection():
+    qdrant_service.delete_collection()
+    return {"message": "Qdrant collection deleted successfully."}
