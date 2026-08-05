@@ -31,6 +31,4 @@ class Settings(BaseSettings):
 
 settings = Settings()
 
-print("=" * 50)
-print("DATABASE_URL =", settings.DATABASE_URL)
-print("=" * 50)
+

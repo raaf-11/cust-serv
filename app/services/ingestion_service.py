@@ -5,7 +5,7 @@ from app.services.embedding_service import embedding_service
 from app.services.qdrant_service import qdrant_service
 from app.services.pdf_service import pdf_service
 from app.services.chunking_service import chunking_service
-
+from app.services.elasticsearch_service import elasticsearch_service
 
 class IngestionService:
 
@@ -45,10 +45,11 @@ class IngestionService:
                 }
             )
 
-        qdrant_service.store_points(
-            vectors,
-            payloads
-        )
+        qdrant_service.store_points(vectors,payloads)
+
+        elasticsearch_service.index_chunks(payloads)
+
+        print(f"Ingested {len(payloads)} chunks into Qdrant and Elasticsearch.")
 
 
 ingestion_service = IngestionService()

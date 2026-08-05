@@ -70,35 +70,36 @@ class QdrantService:
         return point_id
 
     def store_points(
-    self,
-    vectors: list[list[float]],
-    payloads: list[dict]
-):
-    """
-    Store multiple vectors in Qdrant.
+        self,
+        vectors: list[list[float]],
+        payloads: list[dict]
+    ):
+        """
+        Store multiple vectors in Qdrant.
 
-    Each payload MUST already contain an 'id' field.
-    That same ID will later be used inside Elasticsearch.
-    """
+        Each payload MUST already contain an 'id' field.
+        That same ID will later be used inside Elasticsearch.
+        """
 
-    self.create_collection()
+        self.create_collection()
 
-    points = []
+        points = []
 
-    for vector, payload in zip(vectors, payloads):
+        for vector, payload in zip(vectors, payloads):
 
-        points.append(
-            PointStruct(
-                id=payload["id"],
-                vector=vector,
-                payload=payload
+            points.append(
+                PointStruct(
+                    id=payload["id"],
+                    vector=vector,
+                    payload=payload
+                )
             )
+
+        self.client.upsert(
+            collection_name=settings.QDRANT_COLLECTION_NAME,
+            points=points
         )
 
-    self.client.upsert(
-        collection_name=settings.QDRANT_COLLECTION_NAME,
-        points=points
-    )
     def search(
         self,
         query_vector: list[float],

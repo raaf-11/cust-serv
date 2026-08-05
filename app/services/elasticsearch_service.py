@@ -5,47 +5,41 @@ from app.core.config import settings
 class ElasticsearchService:
 
     def __init__(self):
+        print("ES URL:", settings.ELASTICSEARCH_URL)
+        print("ES INDEX:", repr(settings.ELASTICSEARCH_INDEX))
+
         self.client = Elasticsearch(settings.ELASTICSEARCH_URL)
         self.index_name = settings.ELASTICSEARCH_INDEX
 
         self.create_index()
 
     def create_index(self):
-        """
-        Creates the Elasticsearch index if it doesn't already exist.
-        """
+        try:
+            if self.client.indices.exists(index=self.index_name):
+                return
 
-        if self.client.indices.exists(index=self.index_name):
-            return
-
-        mapping = {
-            "mappings": {
-                "properties": {
-                    "id": {
-                        "type": "keyword"
-                    },
-                    "text": {
-                        "type": "text"
-                    },
-                    "document_name": {
-                        "type": "keyword"
-                    },
-                    "chunk_index": {
-                        "type": "integer"
-                    },
-                    "source_type": {
-                        "type": "keyword"
+            mapping = {
+                "mappings": {
+                    "properties": {
+                        "id": {"type": "keyword"},
+                        "text": {"type": "text"},
+                        "document_name": {"type": "keyword"},
+                        "chunk_index": {"type": "integer"},
+                        "source_type": {"type": "keyword"}
                     }
                 }
             }
-        }
 
-        self.client.indices.create(
-            index=self.index_name,
-            body=mapping
-        )
+            self.client.indices.create(
+                index=self.index_name,
+                body=mapping
+            )
 
-        print(f"Created Elasticsearch index: {self.index_name}")
+            print(f"Created Elasticsearch index: {self.index_name}")
+
+        except Exception as e:
+            print("Elasticsearch Exception:", repr(e))
+            raise
 
     def index_chunk(self, payload: dict):
         """
