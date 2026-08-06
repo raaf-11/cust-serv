@@ -28,6 +28,8 @@ class Settings(BaseSettings):
 
     DEBUG_RETRIEVAL: bool = True
 
+    MAX_INPUT_LENGTH: int = 2000
+
     class Config:
         env_file = ".env"
 

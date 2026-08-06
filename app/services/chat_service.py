@@ -1,13 +1,18 @@
+from fastapi import HTTPException
+
+from app.guardrails.guardrail_service import GuardrailService
 from app.schemas.chat import ChatResponse
+from app.services.chat_session_service import chat_session_service
+from app.services.conversation_service import conversation_service
 from app.services.llm_service import llm_service
 from app.services.retrieval_service import retrieval_service
-from app.services.conversation_service import conversation_service
-from fastapi import HTTPException
-from app.services.chat_session_service import chat_session_service
 from app.services.ticket_service import ticket_service
 
 
 class ChatService:
+
+    def __init__(self):
+        self.guardrail_service = GuardrailService()
 
     async def process_message(
         self,
@@ -27,6 +32,16 @@ class ChatService:
                 detail="You do not have access to this chat session."
             )
 
+        # -----------------------------
+        # Input Guardrails
+        # -----------------------------
+        guardrail_result = self.guardrail_service.validate_input(message)
+
+        if not guardrail_result.allowed:
+            return ChatResponse(
+                answer=guardrail_result.reason
+            )
+
         if session.title == "New Chat":
             title = message.strip()
 
@@ -36,13 +51,10 @@ class ChatService:
             chat_session_service.update_title(
                 session_id=session.id,
                 title=title
-            ) 
+            )
 
-        
-
-        history = (
-            conversation_service
-            .get_recent_conversations(session_id=session_id)
+        history = conversation_service.get_recent_conversations(
+            session_id=session_id
         )
 
         print("HISTORY:")
