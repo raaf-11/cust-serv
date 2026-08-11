@@ -6,9 +6,17 @@ export default function SessionList({
     onSelectSession,
     onDelete
 }) {
+
     return (
-        <div className="session-list">
+        <div
+            style={{
+                display: "flex",
+                flexDirection: "column",
+                gap: "10px",
+            }}
+        >
             {sessions.map((session) => (
+
                 <SessionItem
                     key={session.id}
                     session={session}
@@ -20,6 +28,7 @@ export default function SessionList({
                     }
                     onDelete={onDelete}
                 />
+
             ))}
         </div>
     );

@@ -1,6 +1,7 @@
 from fastapi import HTTPException
 
 from app.guardrails.guardrail_service import GuardrailService
+from app.guardrails.exceptions import GuardrailViolation
 from app.schemas.chat import ChatResponse
 from app.services.chat_session_service import chat_session_service
 from app.services.conversation_service import conversation_service
@@ -21,6 +22,16 @@ class ChatService:
         message: str
     ) -> ChatResponse:
 
+        # -----------------------------
+        # Input Guardrails
+        # -----------------------------
+        try:
+            message = self.guardrail_service.validate_and_sanitize_input(message)
+        except GuardrailViolation as e:
+            return ChatResponse(
+                answer=e.user_message
+            )
+
         session = chat_session_service.get_session(
             session_id=session_id,
             user_id=user_id
@@ -30,16 +41,6 @@ class ChatService:
             raise HTTPException(
                 status_code=403,
                 detail="You do not have access to this chat session."
-            )
-
-        # -----------------------------
-        # Input Guardrails
-        # -----------------------------
-        guardrail_result = self.guardrail_service.validate_input(message)
-
-        if not guardrail_result.allowed:
-            return ChatResponse(
-                answer=guardrail_result.reason
             )
 
         if session.title == "New Chat":
@@ -82,6 +83,18 @@ class ChatService:
             history=history,
             question=message
         )
+
+        # -----------------------------
+        # Output Guardrails
+        # -----------------------------
+        try:
+            self.guardrail_service.validate_output(
+                response=answer,
+                context=context
+            )
+
+        except GuardrailViolation as e:
+            answer = e.user_message
 
         conversation_service.save_conversation(
             session_id=session_id,

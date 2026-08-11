@@ -4,9 +4,11 @@ export default function ChatInput({
     onSend,
     disabled = false,
 }) {
+
     const [message, setMessage] = useState("");
 
     const handleSubmit = (e) => {
+
         e.preventDefault();
 
         if (!message.trim()) return;
@@ -14,32 +16,44 @@ export default function ChatInput({
         onSend(message);
 
         setMessage("");
+
     };
 
     return (
+
         <form
             onSubmit={handleSubmit}
-            className="chat-input-form"
+            style={{
+                borderTop: "1px solid #ddd",
+                padding: "20px",
+                display: "flex",
+                gap: "10px",
+            }}
         >
+
             <input
                 type="text"
-                placeholder="Ask about your account, orders, or policies..."
+                placeholder="Ask anything..."
                 value={message}
                 disabled={disabled}
                 onChange={(e) =>
                     setMessage(e.target.value)
                 }
-                className="chat-input"
+                style={{
+                    flex: 1,
+                    padding: "12px",
+                }}
             />
 
             <button
                 type="submit"
-                disabled={disabled || !message.trim()}
-                className="chat-send-button"
-                title="Send message"
+                disabled={disabled}
             >
-                ↑
+                Send
             </button>
+
         </form>
+
     );
+
 }

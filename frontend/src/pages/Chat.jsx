@@ -13,42 +13,35 @@ import {
     deleteSession
 } from "../services/chat";
 
+import "./chat.css";
 
 export default function Chat() {
-
     const [sessions, setSessions] = useState([]);
     const [selectedSession, setSelectedSession] = useState(null);
     const [messages, setMessages] = useState([]);
     const [loading, setLoading] = useState(false);
-    const navigate = useNavigate();
-    const { logout } = useAuth();
     const [showEscalateModal, setShowEscalateModal] = useState(false);
-    
+
+    const navigate = useNavigate();
+    const { user, logout } = useAuth();
 
     useEffect(() => {
         loadSessions();
     }, []);
 
     useEffect(() => {
-
         if (!selectedSession) return;
 
-            const interval = setInterval(() => {
-
+        const interval = setInterval(() => {
             loadMessages(selectedSession);
-
         }, 2000);
 
         return () => clearInterval(interval);
-
     }, [selectedSession]);
 
     const handleLogout = () => {
-
         logout();
-
         navigate("/");
-
     };
 
     const loadSessions = async () => {
@@ -60,55 +53,40 @@ export default function Chat() {
             if (data.length > 0) {
                 loadMessages(data[0]);
             }
-
         } catch (err) {
             console.error(err);
         }
     };
 
     const handleNewChat = async () => {
-
         try {
-
             const session = await createSession();
 
             await loadSessions();
 
             setSelectedSession(session);
-
         } catch (err) {
             console.error(err);
         }
-
     };
 
     const loadMessages = async (session) => {
-
         try {
-
             const data = await getMessages(session.id);
 
             setMessages(data);
-
             setSelectedSession(session);
-
-        } 
-        catch (err) {
-
+        } catch (err) {
             console.error(err);
-
         }
-
     };
 
     const handleSend = async (text) => {
-
         if (!selectedSession) return;
 
         setLoading(true);
 
         try {
-
             await sendMessage(
                 selectedSession.id,
                 text
@@ -116,104 +94,124 @@ export default function Chat() {
 
             await loadMessages(selectedSession);
             await loadSessions();
-
-        } 
-        catch (err) {
-
+        } catch (err) {
             console.error(err);
-
-        } 
-        finally {
-
+        } finally {
             setLoading(false);
-
         }
-
     };
+
     const handleDeleteSession = async (sessionId) => {
-
         try {
-
             await deleteSession(sessionId);
-
             await loadSessions();
-
-        }catch (err) {
-
+        } catch (err) {
             console.error(err);
-
         }
-
     };
 
     return (
-        <div
-            style={{
-                display: "flex",
-                height: "100vh",
-            }}
-        >
+        <div className="chat-page">
+
             <Sidebar
                 sessions={sessions}
                 selectedSession={selectedSession}
                 onSelectSession={loadMessages}
                 onNewChat={handleNewChat}
                 onDelete={handleDeleteSession}
-                 onLogout={handleLogout}
+                onLogout={handleLogout}
+                user={user}
             />
 
-            <main
-                style={{
-                    flex: 1,
-                    display: "flex",
-                    flexDirection: "column",
-                }}
-            >
-                <ChatWindow
-                messages={messages}
-                 />
+            <main className="chat-main">
 
-                <>
-            <ChatInput
-                onSend={handleSend}
-                disabled={loading}
-            />
+                <header className="chat-header">
 
-            {selectedSession && (
+    <div className="chat-header-title">
 
-            <div
-                style={{
-                padding: 15,
-                display: "flex",
-                justifyContent: "center",
-            }}
-            >
+        <div className="brand-mark brand-mark-small">
+            H
+        </div>
 
-                <button
-                    onClick={() =>
-                        setShowEscalateModal(true)
+        <div>
+            <h1>The Help Desk</h1>
+
+            <p>
+                <span className="status-dot" />
+                AI Support Assistant
+            </p>
+        </div>
+
+    </div>
+
+</header>
+
+                <section className="chat-content">
+
+                    <ChatWindow
+                        messages={messages}
+                        selectedSession={selectedSession}
+                        onNewChat={handleNewChat}
+                    />
+
+                    <div className="chat-composer-area">
+
+                        {selectedSession && (
+                            <div className="escalation-bar">
+
+                                <div className="escalation-copy">
+
+                                    <span className="escalation-icon">
+                                        ↗
+                                    </span>
+
+                                    <div>
+                                        <strong>
+                                            Need more help?
+                                        </strong>
+
+                                        <span>
+                                            Connect with a human support agent
+                                        </span>
+                                    </div>
+
+                                </div>
+
+                                <button
+                                    className="escalation-button"
+                                    onClick={() =>
+                                        setShowEscalateModal(true)
+                                    }
+                                >
+                                    Escalate to Human
+                                </button>
+
+                            </div>
+                        )}
+
+                        <ChatInput
+                            onSend={handleSend}
+                            disabled={loading}
+                        />
+
+                        <p className="chat-disclaimer">
+                            AI responses may be inaccurate. Verify important policy details.
+                        </p>
+
+                    </div>
+
+                </section>
+
+                <EscalateModal
+                    open={showEscalateModal}
+                    sessionId={selectedSession?.id}
+                    onClose={() =>
+                        setShowEscalateModal(false)
                     }
-                >
-                    Escalate to Human
-                </button>
+                />
 
-            </div>
-
-            )}
-
-            <EscalateModal
-
-                open={showEscalateModal}
-
-                sessionId={selectedSession?.id}
-
-                onClose={() =>
-                    setShowEscalateModal(false)
-            }
-
-            />
-</>
             </main>
+
         </div>
     );
 }

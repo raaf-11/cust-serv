@@ -1,4 +1,3 @@
-
 export default function SessionItem({
     session,
     selected,
@@ -6,34 +5,27 @@ export default function SessionItem({
     onDelete,
 }) {
     return (
-        <div
-            style={{
-                display: "flex",
-                gap: "8px",
-            }}
-        >
+        <div className={`session-item ${selected ? "selected" : ""}`}>
             <button
+                className="session-select-button"
                 onClick={onClick}
-                style={{
-                    flex: 1,
-                    textAlign: "left",
-                    padding: "12px",
-                    background: selected ? "#f5d76e" : "white",
-                    border: "1px solid #ddd",
-                    borderRadius: "8px",
-                    cursor: "pointer",
-                }}
             >
-                {session.title}
+                <span className="session-icon">○</span>
+                <span className="session-title">
+                    {session.title}
+                </span>
             </button>
 
             <button
+                className="session-delete-button"
                 onClick={(e) => {
                     e.stopPropagation();
                     onDelete(session.id);
                 }}
+                title="Delete conversation"
+                aria-label="Delete conversation"
             >
-                🗑
+                ×
             </button>
         </div>
     );
