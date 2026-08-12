@@ -1,6 +1,6 @@
 from app.guardrails import validators, sanitizer, output_guardrails
 from app.guardrails.exceptions import GuardrailViolation  # re-exported for convenience
-
+from app.guardrails.output_guardrails import validate_grounding, validate_semantic_grounding
 
 class GuardrailService:
     """
@@ -27,4 +27,5 @@ class GuardrailService:
         responsible for substituting e.user_message before storing
         or returning the response.
         """
-        output_guardrails.validate_grounding(response, context)
+        validate_grounding(response, context)          # numeric claims
+        validate_semantic_grounding(response, context)   # everything else
