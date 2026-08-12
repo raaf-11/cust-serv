@@ -76,7 +76,10 @@ class ChatService:
                 answer="Your conversation has been assigned to a support agent. Please wait for their response."
             )
 
-        context = retrieval_service.retrieve(message)
+        retrieval_result = retrieval_service.retrieve(message)
+
+        context = retrieval_result["context"]
+        documents = retrieval_result["documents"]
 
         answer = await llm_service.generate_response(
             context=context,

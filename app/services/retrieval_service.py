@@ -9,10 +9,14 @@ class RetrievalService:
         question: str,
         candidate_count: int = 20,
         final_count: int = 5
-    ) -> str:
+    ) -> dict:
         """
         Retrieves the most relevant context for the user's question
         using Hybrid RAG.
+
+        Returns both:
+        1. Combined text context for the LLM
+        2. Retrieval metadata and scores for confidence evaluation
         """
 
         retrieved_documents = hybrid_retriever.retrieve(
@@ -27,9 +31,13 @@ class RetrievalService:
         ]
 
         context = "\n\n".join(chunks)
+
         RetrievalDebugger.print_context(context)
 
-        return context
+        return {
+            "context": context,
+            "documents": retrieved_documents
+        }
 
 
 retrieval_service = RetrievalService()
