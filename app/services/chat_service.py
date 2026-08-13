@@ -8,7 +8,7 @@ from app.services.conversation_service import conversation_service
 from app.services.llm_service import llm_service
 from app.services.retrieval_service import retrieval_service
 from app.services.ticket_service import ticket_service
-
+from app.services.confidence_service import confidence_service
 
 class ChatService:
 
@@ -80,7 +80,12 @@ class ChatService:
 
         context = retrieval_result["context"]
         documents = retrieval_result["documents"]
+        confidence_score = confidence_service.calculate_confidence(documents)
+        should_escalate = confidence_service.should_escalate(confidence_score)
 
+        print("CONFIDENCE SCORE:", confidence_score)
+        print("SHOULD ESCALATE:", should_escalate)
+        
         answer = await llm_service.generate_response(
             context=context,
             history=history,
