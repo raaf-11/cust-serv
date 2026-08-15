@@ -66,7 +66,7 @@ The platform also supports human-in-the-loop escalation, ticket management, conv
 
 ---
 
-##  Current Updates / What's Going On
+
 
 
 ##  Current Development
