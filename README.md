@@ -90,6 +90,8 @@ The platform also supports human-in-the-loop escalation, ticket management, conv
 - Initial confidence threshold (`0.60`) for identifying potentially low-confidence responses
 - Automatically generating support tickets from escalated conversations
 
+### The results folder contain the retireval results and score
+
 ###  In Progress
 
 - Automatic human escalation based on confidence score
