@@ -32,7 +32,7 @@ class RetrievalService:
 
         context = "\n\n".join(chunks)
 
-        RetrievalDebugger.print_context(context)
+        #RetrievalDebugger.print_context(context)
 
         return {
             "context": context,

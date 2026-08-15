@@ -5,9 +5,7 @@ from app.core.config import settings
 class ElasticsearchService:
 
     def __init__(self):
-        print("ES URL:", settings.ELASTICSEARCH_URL)
-        print("ES INDEX:", repr(settings.ELASTICSEARCH_INDEX))
-
+       
         self.client = Elasticsearch(settings.ELASTICSEARCH_URL)
         self.index_name = settings.ELASTICSEARCH_INDEX
 
