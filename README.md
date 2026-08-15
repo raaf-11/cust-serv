@@ -84,14 +84,6 @@ The platform also supports human-in-the-loop escalation, ticket management, conv
   - Cross-Encoder reranking
 - Grounded LLM responses using retrieved knowledge
 - Groq LLM integration
-- Input and output guardrails
-  - Prompt injection detection
-  - Jailbreak detection
-  - Off-topic detection
-  - Malicious instruction detection
-  - Input validation
-  - Output grounding validation
-  - System prompt leakage prevention
 - Human support ticket management
 - Employee support workflow
 - Confidence score calculation for retrieval results
@@ -103,6 +95,7 @@ The platform also supports human-in-the-loop escalation, ticket management, conv
 - Automatic human escalation based on confidence score
 - Automatic conversation summarization during escalation
 - Improving confidence-score calibration using real retrieval results
+- Guardrails failed-Hindering the response(Need to fix)
 - Knowledge-base learning from verified human resolutions
 - Customer feedback and AI response evaluation
 - Better Frontend
