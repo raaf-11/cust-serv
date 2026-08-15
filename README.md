@@ -6,7 +6,7 @@ The platform also supports human-in-the-loop escalation, ticket management, conv
 
 ##  Project Architecture
 
-```text
+
                          ┌──────────────────────┐
                          │      React UI        │
                          │ Customer / Employee  │
@@ -64,14 +64,11 @@ The platform also supports human-in-the-loop escalation, ticket management, conv
 
 
 
----
 
 
+## Current Development
 
-
-##  Current Development
-
-### Completed
+## Completed
 
 - FastAPI backend with modular service architecture
 - JWT-based authentication and protected routes
