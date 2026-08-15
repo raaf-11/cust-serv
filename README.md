@@ -68,9 +68,7 @@ The platform also supports human-in-the-loop escalation, ticket management, conv
 
 ##  Current Updates / What's Going On
 
-I'd phrase this honestly:
 
-```markdown
 ##  Current Development
 
 ### Completed
