@@ -1,7 +1,10 @@
+import logging
 import httpx
 from pathlib import Path
 
 from app.core.config import settings
+
+logger = logging.getLogger(__name__)
 
 FALLBACK_RESPONSE = (
     "I'm currently unavailable. Please try again later."
@@ -80,13 +83,20 @@ Question:
 
                 return data["choices"][0]["message"]["content"]
 
-        except httpx.TimeoutException:
+        except httpx.TimeoutException as e:
+            logger.error(f"LLM request timed out: {e!r}")
             return FALLBACK_RESPONSE
 
-        except httpx.HTTPStatusError:
+        except httpx.HTTPStatusError as e:
+            logger.error(
+                "LLM API returned %s: %s",
+                e.response.status_code,
+                e.response.text[:500]
+            )
             return FALLBACK_RESPONSE
 
-        except Exception:
+        except Exception as e:
+            logger.error(f"LLM request failed unexpectedly: {e!r}")
             return FALLBACK_RESPONSE
 
 

@@ -6,18 +6,31 @@ Usage (from the project root, with Qdrant/Elasticsearch/Postgres running
 and the knowledge base already ingested):
 
     python -m evaluation.run_eval
+    python -m evaluation.run_eval --delay 3 --max-retries 5
 
 Writes a timestamped .json (raw results + report) and .md (human-readable)
 report to results/, and prints a summary to the console.
+
+If you see "I'm currently unavailable" answers in the report, that's
+llm_service.py's fallback for ANY API failure — most commonly a rate
+limit on the LLM provider's free tier when running ~26 calls back to
+back. --delay and --max-retries (below) exist to route around that; see
+evaluation/runner.py's module docstring for details.
 """
 
+import argparse
 import asyncio
 import json
 from datetime import datetime
 from pathlib import Path
 
 from evaluation.metrics import aggregate_report
-from evaluation.runner import EvalRunner
+from evaluation.runner import (
+    DEFAULT_DELAY_BETWEEN_ITEMS_S,
+    DEFAULT_MAX_RETRIES,
+    DEFAULT_RETRY_BACKOFF_BASE_S,
+    EvalRunner,
+)
 
 DATASET_PATH = Path(__file__).parent / "golden_dataset.json"
 RESULTS_DIR = Path(__file__).parent.parent / "results"
@@ -142,11 +155,35 @@ def write_markdown_report(path: Path, report: dict, results: list[dict]) -> None
     path.write_text("\n".join(lines), encoding="utf-8")
 
 
+def parse_args() -> argparse.Namespace:
+    parser = argparse.ArgumentParser(description="Run the RAG eval suite.")
+    parser.add_argument(
+        "--delay", type=float, default=DEFAULT_DELAY_BETWEEN_ITEMS_S,
+        help=f"Seconds to wait between questions (default: {DEFAULT_DELAY_BETWEEN_ITEMS_S})."
+    )
+    parser.add_argument(
+        "--max-retries", type=int, default=DEFAULT_MAX_RETRIES,
+        help=f"Retries per failed LLM/judge call before giving up (default: {DEFAULT_MAX_RETRIES})."
+    )
+    parser.add_argument(
+        "--backoff-base", type=float, default=DEFAULT_RETRY_BACKOFF_BASE_S,
+        help=f"Base seconds for exponential backoff between retries (default: {DEFAULT_RETRY_BACKOFF_BASE_S})."
+    )
+    return parser.parse_args()
+
+
 async def main() -> None:
+    args = parse_args()
+
     dataset = load_dataset()
     print(f"Loaded {len(dataset)} golden questions from {DATASET_PATH.name}\n")
 
-    runner = EvalRunner(dataset)
+    runner = EvalRunner(
+        dataset,
+        delay_between_items_s=args.delay,
+        max_retries=args.max_retries,
+        retry_backoff_base_s=args.backoff_base,
+    )
 
     def on_item_done(index, total, result):
         status = "PASS" if result["is_correct"] else "FAIL"
