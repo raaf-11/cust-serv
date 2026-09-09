@@ -1,0 +1,601 @@
+{
+  "report": {
+    "total_items": 24,
+    "retrieval_hit_rate": 1.0,
+    "factual_accuracy": 0.6818181818181818,
+    "factual_count": 22,
+    "avg_judge_score": 1,
+    "open_ended_count": 2,
+    "avg_confidence": 0.7395208333333333,
+    "escalation_rate": 0.08333333333333333,
+    "false_escalation_rate": 0.5,
+    "missed_escalation_rate": 0.8888888888888888,
+    "incorrect_count": 9,
+    "per_category": {
+      "Security": {
+        "total": 5,
+        "correct": 5
+      },
+      "Warranty": {
+        "total": 4,
+        "correct": 4
+      },
+      "Refunds": {
+        "total": 4,
+        "correct": 4
+      },
+      "Shipping": {
+        "total": 4,
+        "correct": 1
+      },
+      "Employees": {
+        "total": 3,
+        "correct": 0
+      },
+      "Complaints": {
+        "total": 2,
+        "correct": 1
+      },
+      "Technical Support": {
+        "total": 2,
+        "correct": 0
+      }
+    },
+    "avg_retrieval_time_s": 0.59775,
+    "avg_generation_time_s": 0.6762083333333333
+  },
+  "results": [
+    {
+      "id": "sec-1",
+      "category": "Security",
+      "question": "How long is the password reset link valid?",
+      "question_type": "factual",
+      "expected_source": "Password_Reset_and_Account_Security.pdf",
+      "generated_answer": "The password reset link is valid for **15 minutes**.",
+      "confidence": 0.771,
+      "would_escalate": false,
+      "retrieved_sources": [
+        "Password_Reset_and_Account_Security.pdf",
+        "Password_Reset_and_Account_Security.pdf",
+        "Password_Reset_and_Account_Security.pdf",
+        "Password_Reset_and_Account_Security.pdf",
+        "Password_Reset_and_Account_Security.pdf"
+      ],
+      "retrieval_hit": true,
+      "retrieval_time_s": 1.03,
+      "generation_time_s": 0.91,
+      "is_correct": true,
+      "judge_score": null,
+      "judge_reasoning": null
+    },
+    {
+      "id": "sec-2",
+      "category": "Security",
+      "question": "How long is the mobile OTP valid for a password reset?",
+      "question_type": "factual",
+      "expected_source": "Password_Reset_and_Account_Security.pdf",
+      "generated_answer": "The mobile OTP is valid for **10 minutes**.",
+      "confidence": 0.8226,
+      "would_escalate": false,
+      "retrieved_sources": [
+        "Password_Reset_and_Account_Security.pdf",
+        "Password_Reset_and_Account_Security.pdf",
+        "Password_Reset_and_Account_Security.pdf",
+        "Password_Reset_and_Account_Security.pdf",
+        "Password_Reset_and_Account_Security.pdf"
+      ],
+      "retrieval_hit": true,
+      "retrieval_time_s": 0.617,
+      "generation_time_s": 0.894,
+      "is_correct": true,
+      "judge_score": null,
+      "judge_reasoning": null
+    },
+    {
+      "id": "sec-3",
+      "category": "Security",
+      "question": "After how many consecutive failed login attempts is an employee account locked?",
+      "question_type": "factual",
+      "expected_source": "Password_Reset_and_Account_Security.pdf",
+      "generated_answer": "Employee accounts are locked after **5 consecutive failed login attempts**.",
+      "confidence": 0.6018,
+      "would_escalate": false,
+      "retrieved_sources": [
+        "Password_Reset_and_Account_Security.pdf",
+        "Shipping_and_Delivery_Policy.pdf",
+        "Password_Reset_and_Account_Security.pdf",
+        "Password_Reset_and_Account_Security.pdf",
+        "Shipping_and_Delivery_Policy.pdf"
+      ],
+      "retrieval_hit": true,
+      "retrieval_time_s": 0.585,
+      "generation_time_s": 0.901,
+      "is_correct": true,
+      "judge_score": null,
+      "judge_reasoning": null
+    },
+    {
+      "id": "sec-4",
+      "category": "Security",
+      "question": "Is Two-Factor Authentication mandatory for employee accounts?",
+      "question_type": "factual",
+      "expected_source": "Password_Reset_and_Account_Security.pdf",
+      "generated_answer": "Yes. Two-Factor Authentication (2FA) is mandatory for all employee accounts.",
+      "confidence": 0.7914,
+      "would_escalate": false,
+      "retrieved_sources": [
+        "Password_Reset_and_Account_Security.pdf",
+        "Password_Reset_and_Account_Security.pdf",
+        "Password_Reset_and_Account_Security.pdf",
+        "Password_Reset_and_Account_Security.pdf",
+        "Password_Reset_and_Account_Security.pdf"
+      ],
+      "retrieval_hit": true,
+      "retrieval_time_s": 0.589,
+      "generation_time_s": 0.733,
+      "is_correct": true,
+      "judge_score": null,
+      "judge_reasoning": null
+    },
+    {
+      "id": "sec-5",
+      "category": "Security",
+      "question": "What is the minimum required password length?",
+      "question_type": "factual",
+      "expected_source": "Password_Reset_and_Account_Security.pdf",
+      "generated_answer": "The minimum required password length is **12 characters**.",
+      "confidence": 0.8275,
+      "would_escalate": false,
+      "retrieved_sources": [
+        "Password_Reset_and_Account_Security.pdf",
+        "Password_Reset_and_Account_Security.pdf",
+        "Password_Reset_and_Account_Security.pdf",
+        "Password_Reset_and_Account_Security.pdf",
+        "Password_Reset_and_Account_Security.pdf"
+      ],
+      "retrieval_hit": true,
+      "retrieval_time_s": 0.551,
+      "generation_time_s": 0.791,
+      "is_correct": true,
+      "judge_score": null,
+      "judge_reasoning": null
+    },
+    {
+      "id": "war-1",
+      "category": "Warranty",
+      "question": "How long is the standard warranty for laptops?",
+      "question_type": "factual",
+      "expected_source": "Warranty_Policy.pdf",
+      "generated_answer": "The standard warranty for laptops (and notebooks) is **2\u202fyears**.",
+      "confidence": 0.7404,
+      "would_escalate": false,
+      "retrieved_sources": [
+        "Warranty_Policy.pdf",
+        "Warranty_Policy.pdf",
+        "Warranty_Policy.pdf",
+        "Warranty_Policy.pdf",
+        "Complaint_Resolution_Guide.pdf"
+      ],
+      "retrieval_hit": true,
+      "retrieval_time_s": 0.527,
+      "generation_time_s": 1.241,
+      "is_correct": true,
+      "judge_score": null,
+      "judge_reasoning": null
+    },
+    {
+      "id": "war-2",
+      "category": "Warranty",
+      "question": "How long is the standard warranty for mobile phones?",
+      "question_type": "factual",
+      "expected_source": "Warranty_Policy.pdf",
+      "generated_answer": "The standard warranty for mobile phones (and tablets) is **1\u202fyear**.",
+      "confidence": 0.7827,
+      "would_escalate": false,
+      "retrieved_sources": [
+        "Warranty_Policy.pdf",
+        "Warranty_Policy.pdf",
+        "Warranty_Policy.pdf",
+        "Warranty_Policy.pdf",
+        "Warranty_Policy.pdf"
+      ],
+      "retrieval_hit": true,
+      "retrieval_time_s": 0.548,
+      "generation_time_s": 0.864,
+      "is_correct": true,
+      "judge_score": null,
+      "judge_reasoning": null
+    },
+    {
+      "id": "war-3",
+      "category": "Warranty",
+      "question": "Within how many days must I register my product to activate the warranty?",
+      "question_type": "factual",
+      "expected_source": "Warranty_Policy.pdf",
+      "generated_answer": "You must register your product within **30\u202fdays** of purchase to activate the warranty.",
+      "confidence": 0.7064,
+      "would_escalate": false,
+      "retrieved_sources": [
+        "Warranty_Policy.pdf",
+        "Warranty_Policy.pdf",
+        "Warranty_Policy.pdf",
+        "Warranty_Policy.pdf",
+        "Warranty_Policy.pdf"
+      ],
+      "retrieval_hit": true,
+      "retrieval_time_s": 0.573,
+      "generation_time_s": 0.969,
+      "is_correct": true,
+      "judge_score": null,
+      "judge_reasoning": null
+    },
+    {
+      "id": "war-4",
+      "category": "Warranty",
+      "question": "What is the standard warranty period for refurbished products?",
+      "question_type": "factual",
+      "expected_source": "Warranty_Policy.pdf",
+      "generated_answer": "The standard warranty period for refurbished products is **90\u202fdays**.",
+      "confidence": 0.8186,
+      "would_escalate": false,
+      "retrieved_sources": [
+        "Warranty_Policy.pdf",
+        "Warranty_Policy.pdf",
+        "Warranty_Policy.pdf",
+        "Warranty_Policy.pdf",
+        "Warranty_Policy.pdf"
+      ],
+      "retrieval_hit": true,
+      "retrieval_time_s": 0.525,
+      "generation_time_s": 0.792,
+      "is_correct": true,
+      "judge_score": null,
+      "judge_reasoning": null
+    },
+    {
+      "id": "ref-1",
+      "category": "Refunds",
+      "question": "How long does a UPI refund take?",
+      "question_type": "factual",
+      "expected_source": "Refund_and_Return_Policy.pdf",
+      "generated_answer": "A UPI refund is processed to the original account within **3\u20135 business days**.",
+      "confidence": 0.5358,
+      "would_escalate": true,
+      "retrieved_sources": [
+        "Refund_and_Return_Policy.pdf",
+        "Refund_and_Return_Policy.pdf",
+        "Refund_and_Return_Policy.pdf",
+        "Refund_and_Return_Policy.pdf",
+        "Shipping_and_Delivery_Policy.pdf"
+      ],
+      "retrieval_hit": true,
+      "retrieval_time_s": 0.568,
+      "generation_time_s": 0.898,
+      "is_correct": true,
+      "judge_score": null,
+      "judge_reasoning": null
+    },
+    {
+      "id": "ref-2",
+      "category": "Refunds",
+      "question": "How long does a credit or debit card refund take?",
+      "question_type": "factual",
+      "expected_source": "Refund_and_Return_Policy.pdf",
+      "generated_answer": "A refund to a credit or debit card is processed to the original card within **5\u20137 business days**.",
+      "confidence": 0.6198,
+      "would_escalate": false,
+      "retrieved_sources": [
+        "Refund_and_Return_Policy.pdf",
+        "Refund_and_Return_Policy.pdf",
+        "Refund_and_Return_Policy.pdf",
+        "Refund_and_Return_Policy.pdf",
+        "Complaint_Resolution_Guide.pdf"
+      ],
+      "retrieval_hit": true,
+      "retrieval_time_s": 0.553,
+      "generation_time_s": 1.074,
+      "is_correct": true,
+      "judge_score": null,
+      "judge_reasoning": null
+    },
+    {
+      "id": "ref-3",
+      "category": "Refunds",
+      "question": "Within how many days can I return an item if I simply changed my mind?",
+      "question_type": "factual",
+      "expected_source": "Refund_and_Return_Policy.pdf",
+      "generated_answer": "You can return an item for a change of mind within **15 days of delivery**.",
+      "confidence": 0.8379,
+      "would_escalate": false,
+      "retrieved_sources": [
+        "Refund_and_Return_Policy.pdf",
+        "Refund_and_Return_Policy.pdf",
+        "Refund_and_Return_Policy.pdf",
+        "Refund_and_Return_Policy.pdf",
+        "Refund_and_Return_Policy.pdf"
+      ],
+      "retrieval_hit": true,
+      "retrieval_time_s": 0.577,
+      "generation_time_s": 0.897,
+      "is_correct": true,
+      "judge_score": null,
+      "judge_reasoning": null
+    },
+    {
+      "id": "ref-4",
+      "category": "Refunds",
+      "question": "How long does a SmartTech Wallet refund take?",
+      "question_type": "factual",
+      "expected_source": "Refund_and_Return_Policy.pdf",
+      "generated_answer": "A SmartTech Wallet refund is processed within\u202f24\u202fhours.",
+      "confidence": 0.768,
+      "would_escalate": false,
+      "retrieved_sources": [
+        "Refund_and_Return_Policy.pdf",
+        "Shipping_and_Delivery_Policy.pdf",
+        "Refund_and_Return_Policy.pdf",
+        "Refund_and_Return_Policy.pdf",
+        "Refund_and_Return_Policy.pdf"
+      ],
+      "retrieval_hit": true,
+      "retrieval_time_s": 0.565,
+      "generation_time_s": 0.627,
+      "is_correct": true,
+      "judge_score": null,
+      "judge_reasoning": null
+    },
+    {
+      "id": "shp-1",
+      "category": "Shipping",
+      "question": "How many delivery attempts are made before a package is held at the hub?",
+      "question_type": "factual",
+      "expected_source": "Shipping_and_Delivery_Policy.pdf",
+      "generated_answer": "I'm currently unavailable. Please try again later.",
+      "confidence": 0.8086,
+      "would_escalate": false,
+      "retrieved_sources": [
+        "Shipping_and_Delivery_Policy.pdf",
+        "Shipping_and_Delivery_Policy.pdf",
+        "Shipping_and_Delivery_Policy.pdf",
+        "Shipping_and_Delivery_Policy.pdf",
+        "Shipping_and_Delivery_Policy.pdf"
+      ],
+      "retrieval_hit": true,
+      "retrieval_time_s": 0.523,
+      "generation_time_s": 0.345,
+      "is_correct": false,
+      "judge_score": null,
+      "judge_reasoning": null
+    },
+    {
+      "id": "shp-2",
+      "category": "Shipping",
+      "question": "How long does Standard Shipping take within India?",
+      "question_type": "factual",
+      "expected_source": "Shipping_and_Delivery_Policy.pdf",
+      "generated_answer": "I'm currently unavailable. Please try again later.",
+      "confidence": 0.8164,
+      "would_escalate": false,
+      "retrieved_sources": [
+        "Shipping_and_Delivery_Policy.pdf",
+        "Shipping_and_Delivery_Policy.pdf",
+        "Shipping_and_Delivery_Policy.pdf",
+        "Shipping_and_Delivery_Policy.pdf",
+        "Refund_and_Return_Policy.pdf"
+      ],
+      "retrieval_hit": true,
+      "retrieval_time_s": 0.56,
+      "generation_time_s": 0.356,
+      "is_correct": false,
+      "judge_score": null,
+      "judge_reasoning": null
+    },
+    {
+      "id": "shp-3",
+      "category": "Shipping",
+      "question": "How many days is a package held at the logistics hub after delivery attempts fail?",
+      "question_type": "factual",
+      "expected_source": "Shipping_and_Delivery_Policy.pdf",
+      "generated_answer": "The package is held at the logistics hub for **7 days** after the delivery attempts fail.",
+      "confidence": 0.7248,
+      "would_escalate": false,
+      "retrieved_sources": [
+        "Shipping_and_Delivery_Policy.pdf",
+        "Shipping_and_Delivery_Policy.pdf",
+        "Shipping_and_Delivery_Policy.pdf",
+        "Shipping_and_Delivery_Policy.pdf",
+        "Refund_and_Return_Policy.pdf"
+      ],
+      "retrieval_hit": true,
+      "retrieval_time_s": 0.529,
+      "generation_time_s": 0.895,
+      "is_correct": true,
+      "judge_score": null,
+      "judge_reasoning": null
+    },
+    {
+      "id": "shp-4",
+      "category": "Shipping",
+      "question": "How many countries does SmartTech's shipping network cover?",
+      "question_type": "factual",
+      "expected_source": "Shipping_and_Delivery_Policy.pdf",
+      "generated_answer": "I'm currently unavailable. Please try again later.",
+      "confidence": 0.802,
+      "would_escalate": false,
+      "retrieved_sources": [
+        "Shipping_and_Delivery_Policy.pdf",
+        "Shipping_and_Delivery_Policy.pdf",
+        "Shipping_and_Delivery_Policy.pdf",
+        "Shipping_and_Delivery_Policy.pdf",
+        "Shipping_and_Delivery_Policy.pdf"
+      ],
+      "retrieval_hit": true,
+      "retrieval_time_s": 0.584,
+      "generation_time_s": 0.326,
+      "is_correct": false,
+      "judge_score": null,
+      "judge_reasoning": null
+    },
+    {
+      "id": "emp-1",
+      "category": "Employees",
+      "question": "How many earned leave days do employees get annually?",
+      "question_type": "factual",
+      "expected_source": "Employee_Handbook.pdf",
+      "generated_answer": "I'm currently unavailable. Please try again later.",
+      "confidence": 0.6875,
+      "would_escalate": false,
+      "retrieved_sources": [
+        "Employee_Handbook.pdf",
+        "Employee_Handbook.pdf",
+        "Employee_Handbook.pdf",
+        "Employee_Handbook.pdf",
+        "Password_Reset_and_Account_Security.pdf"
+      ],
+      "retrieval_hit": true,
+      "retrieval_time_s": 0.573,
+      "generation_time_s": 0.333,
+      "is_correct": false,
+      "judge_score": null,
+      "judge_reasoning": null
+    },
+    {
+      "id": "emp-2",
+      "category": "Employees",
+      "question": "How many sick leave days do employees get per year?",
+      "question_type": "factual",
+      "expected_source": "Employee_Handbook.pdf",
+      "generated_answer": "I'm currently unavailable. Please try again later.",
+      "confidence": 0.6925,
+      "would_escalate": false,
+      "retrieved_sources": [
+        "Employee_Handbook.pdf",
+        "Employee_Handbook.pdf",
+        "Employee_Handbook.pdf",
+        "Employee_Handbook.pdf",
+        "Password_Reset_and_Account_Security.pdf"
+      ],
+      "retrieval_hit": true,
+      "retrieval_time_s": 0.611,
+      "generation_time_s": 0.349,
+      "is_correct": false,
+      "judge_score": null,
+      "judge_reasoning": null
+    },
+    {
+      "id": "emp-3",
+      "category": "Employees",
+      "question": "How many weeks of maternity leave are provided?",
+      "question_type": "factual",
+      "expected_source": "Employee_Handbook.pdf",
+      "generated_answer": "I'm currently unavailable. Please try again later.",
+      "confidence": 0.6351,
+      "would_escalate": false,
+      "retrieved_sources": [
+        "Employee_Handbook.pdf",
+        "Employee_Handbook.pdf",
+        "Refund_and_Return_Policy.pdf",
+        "Warranty_Policy.pdf",
+        "Warranty_Policy.pdf"
+      ],
+      "retrieval_hit": true,
+      "retrieval_time_s": 0.62,
+      "generation_time_s": 0.3,
+      "is_correct": false,
+      "judge_score": null,
+      "judge_reasoning": null
+    },
+    {
+      "id": "cmp-1",
+      "category": "Complaints",
+      "question": "Within how many seconds should a live chat complaint be acknowledged?",
+      "question_type": "factual",
+      "expected_source": "Complaint_Resolution_Guide.pdf",
+      "generated_answer": "A live\u2011chat complaint should be acknowledged within **60 seconds** of the customer's first message.",
+      "confidence": 0.8568,
+      "would_escalate": false,
+      "retrieved_sources": [
+        "Complaint_Resolution_Guide.pdf",
+        "Complaint_Resolution_Guide.pdf",
+        "Complaint_Resolution_Guide.pdf",
+        "Complaint_Resolution_Guide.pdf",
+        "Complaint_Resolution_Guide.pdf"
+      ],
+      "retrieval_hit": true,
+      "retrieval_time_s": 0.514,
+      "generation_time_s": 0.718,
+      "is_correct": true,
+      "judge_score": null,
+      "judge_reasoning": null
+    },
+    {
+      "id": "cmp-2",
+      "category": "Complaints",
+      "question": "What is the resolution time for an L2 senior representative escalation?",
+      "question_type": "factual",
+      "expected_source": "Complaint_Resolution_Guide.pdf",
+      "generated_answer": "I'm currently unavailable. Please try again later.",
+      "confidence": 0.7479,
+      "would_escalate": false,
+      "retrieved_sources": [
+        "Complaint_Resolution_Guide.pdf",
+        "Refund_and_Return_Policy.pdf",
+        "Complaint_Resolution_Guide.pdf",
+        "Complaint_Resolution_Guide.pdf",
+        "Complaint_Resolution_Guide.pdf"
+      ],
+      "retrieval_hit": true,
+      "retrieval_time_s": 0.575,
+      "generation_time_s": 0.327,
+      "is_correct": false,
+      "judge_score": null,
+      "judge_reasoning": null
+    },
+    {
+      "id": "tech-1",
+      "category": "Technical Support",
+      "question": "My laptop is running slowly. What should I do?",
+      "question_type": "open_ended",
+      "expected_source": "Laptop_Troubleshooting_Guide.pdf",
+      "generated_answer": "I'm currently unavailable. Please try again later.",
+      "confidence": 0.8157,
+      "would_escalate": false,
+      "retrieved_sources": [
+        "Laptop_Troubleshooting_Guide.pdf",
+        "Laptop_Troubleshooting_Guide.pdf",
+        "Laptop_Troubleshooting_Guide.pdf",
+        "Laptop_Troubleshooting_Guide.pdf",
+        "Laptop_Troubleshooting_Guide.pdf"
+      ],
+      "retrieval_hit": true,
+      "retrieval_time_s": 0.69,
+      "generation_time_s": 0.346,
+      "judge_score": null,
+      "judge_reasoning": "Judge call failed or returned unparseable output: HTTPStatusError(\"Client error '429 Too Many Requests' for url 'https://api.groq.com/openai/v1/chat/completions'\\nFor more information check: https://developer.mozilla.org/en-US/docs/Web/HTTP/Status/429\")",
+      "is_correct": false
+    },
+    {
+      "id": "tech-2",
+      "category": "Technical Support",
+      "question": "My phone's Wi-Fi keeps disconnecting, how do I fix it?",
+      "question_type": "open_ended",
+      "expected_source": "Mobile_Phone_User_Manual.pdf",
+      "generated_answer": "I'm currently unavailable. Please try again later.",
+      "confidence": 0.5373,
+      "would_escalate": true,
+      "retrieved_sources": [
+        "Mobile_Phone_User_Manual.pdf",
+        "Laptop_Troubleshooting_Guide.pdf",
+        "Mobile_Phone_User_Manual.pdf",
+        "Laptop_Troubleshooting_Guide.pdf",
+        "Mobile_Phone_User_Manual.pdf"
+      ],
+      "retrieval_hit": true,
+      "retrieval_time_s": 0.759,
+      "generation_time_s": 0.343,
+      "judge_score": 1,
+      "judge_reasoning": "The response gives no troubleshooting steps and fails to address any of the reference facts.",
+      "is_correct": false
+    }
+  ]
+}

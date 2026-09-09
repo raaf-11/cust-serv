@@ -1,0 +1,194 @@
+[
+  {
+    "id": "sec-1",
+    "category": "Security",
+    "question": "How long is the password reset link valid?",
+    "question_type": "factual",
+    "expected_answer": "15 minutes",
+    "expected_source": "Password_Reset_and_Account_Security.pdf"
+  },
+  {
+    "id": "sec-2",
+    "category": "Security",
+    "question": "How long is the mobile OTP valid for a password reset?",
+    "question_type": "factual",
+    "expected_answer": "10 minutes",
+    "expected_source": "Password_Reset_and_Account_Security.pdf"
+  },
+  {
+    "id": "sec-3",
+    "category": "Security",
+    "question": "After how many consecutive failed login attempts is an employee account locked?",
+    "question_type": "factual",
+    "expected_answer": "5",
+    "expected_source": "Password_Reset_and_Account_Security.pdf"
+  },
+  {
+    "id": "sec-4",
+    "category": "Security",
+    "question": "Is Two-Factor Authentication mandatory for employee accounts?",
+    "question_type": "factual",
+    "expected_answer": "mandatory",
+    "expected_source": "Password_Reset_and_Account_Security.pdf"
+  },
+  {
+    "id": "sec-5",
+    "category": "Security",
+    "question": "What is the minimum required password length?",
+    "question_type": "factual",
+    "expected_answer": "12 characters",
+    "expected_source": "Password_Reset_and_Account_Security.pdf"
+  },
+  {
+    "id": "war-1",
+    "category": "Warranty",
+    "question": "How long is the standard warranty for laptops?",
+    "question_type": "factual",
+    "expected_answer": "2 years",
+    "expected_source": "Warranty_Policy.pdf"
+  },
+  {
+    "id": "war-2",
+    "category": "Warranty",
+    "question": "How long is the standard warranty for mobile phones?",
+    "question_type": "factual",
+    "expected_answer": "1 year",
+    "expected_source": "Warranty_Policy.pdf"
+  },
+  {
+    "id": "war-3",
+    "category": "Warranty",
+    "question": "Within how many days must I register my product to activate the warranty?",
+    "question_type": "factual",
+    "expected_answer": "30 days",
+    "expected_source": "Warranty_Policy.pdf"
+  },
+  {
+    "id": "war-4",
+    "category": "Warranty",
+    "question": "What is the standard warranty period for refurbished products?",
+    "question_type": "factual",
+    "expected_answer": "90 days",
+    "expected_source": "Warranty_Policy.pdf"
+  },
+  {
+    "id": "ref-1",
+    "category": "Refunds",
+    "question": "How long does a UPI refund take?",
+    "question_type": "factual",
+    "expected_answer": "3-5 business days",
+    "expected_source": "Refund_and_Return_Policy.pdf"
+  },
+  {
+    "id": "ref-2",
+    "category": "Refunds",
+    "question": "How long does a credit or debit card refund take?",
+    "question_type": "factual",
+    "expected_answer": "5-7 business days",
+    "expected_source": "Refund_and_Return_Policy.pdf"
+  },
+  {
+    "id": "ref-3",
+    "category": "Refunds",
+    "question": "Within how many days can I return an item if I simply changed my mind?",
+    "question_type": "factual",
+    "expected_answer": "15 days",
+    "expected_source": "Refund_and_Return_Policy.pdf"
+  },
+  {
+    "id": "ref-4",
+    "category": "Refunds",
+    "question": "How long does a SmartTech Wallet refund take?",
+    "question_type": "factual",
+    "expected_answer": "24 hours",
+    "expected_source": "Refund_and_Return_Policy.pdf"
+  },
+  {
+    "id": "shp-1",
+    "category": "Shipping",
+    "question": "How many delivery attempts are made before a package is held at the hub?",
+    "question_type": "factual",
+    "expected_answer": "3",
+    "expected_source": "Shipping_and_Delivery_Policy.pdf"
+  },
+  {
+    "id": "shp-2",
+    "category": "Shipping",
+    "question": "How long does Standard Shipping take within India?",
+    "question_type": "factual",
+    "expected_answer": "5-7 business days",
+    "expected_source": "Shipping_and_Delivery_Policy.pdf"
+  },
+  {
+    "id": "shp-3",
+    "category": "Shipping",
+    "question": "How many days is a package held at the logistics hub after delivery attempts fail?",
+    "question_type": "factual",
+    "expected_answer": "7 days",
+    "expected_source": "Shipping_and_Delivery_Policy.pdf"
+  },
+  {
+    "id": "shp-4",
+    "category": "Shipping",
+    "question": "How many countries does SmartTech's shipping network cover?",
+    "question_type": "factual",
+    "expected_answer": "50 countries",
+    "expected_source": "Shipping_and_Delivery_Policy.pdf"
+  },
+  {
+    "id": "emp-1",
+    "category": "Employees",
+    "question": "How many earned leave days do employees get annually?",
+    "question_type": "factual",
+    "expected_answer": "18 days",
+    "expected_source": "Employee_Handbook.pdf"
+  },
+  {
+    "id": "emp-2",
+    "category": "Employees",
+    "question": "How many sick leave days do employees get per year?",
+    "question_type": "factual",
+    "expected_answer": "12 days",
+    "expected_source": "Employee_Handbook.pdf"
+  },
+  {
+    "id": "emp-3",
+    "category": "Employees",
+    "question": "How many weeks of maternity leave are provided?",
+    "question_type": "factual",
+    "expected_answer": "26 weeks",
+    "expected_source": "Employee_Handbook.pdf"
+  },
+  {
+    "id": "cmp-1",
+    "category": "Complaints",
+    "question": "Within how many seconds should a live chat complaint be acknowledged?",
+    "question_type": "factual",
+    "expected_answer": "60 seconds",
+    "expected_source": "Complaint_Resolution_Guide.pdf"
+  },
+  {
+    "id": "cmp-2",
+    "category": "Complaints",
+    "question": "What is the resolution time for an L2 senior representative escalation?",
+    "question_type": "factual",
+    "expected_answer": "24 hours",
+    "expected_source": "Complaint_Resolution_Guide.pdf"
+  },
+  {
+    "id": "tech-1",
+    "category": "Technical Support",
+    "question": "My laptop is running slowly. What should I do?",
+    "question_type": "open_ended",
+    "reference_notes": "A good answer should suggest some of: restarting the laptop, checking Task Manager for high CPU/RAM usage processes, disabling unnecessary startup programs, running Disk Cleanup, ensuring the OS is fully updated, checking for overheating/cleaning vents, and considering a RAM upgrade if usage is consistently above 85%.",
+    "expected_source": "Laptop_Troubleshooting_Guide.pdf"
+  },
+  {
+    "id": "tech-2",
+    "category": "Technical Support",
+    "question": "My phone's Wi-Fi keeps disconnecting, how do I fix it?",
+    "question_type": "open_ended",
+    "reference_notes": "A good answer should suggest forgetting the network and reconnecting, re-entering the Wi-Fi password, and/or resetting network settings.",
+    "expected_source": "Mobile_Phone_User_Manual.pdf"
+  }
+]
