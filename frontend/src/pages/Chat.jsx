@@ -156,39 +156,7 @@ export default function Chat() {
 
                     <div className="chat-composer-area">
 
-                        {selectedSession && (
-                            <div className="escalation-bar">
-
-                                <div className="escalation-copy">
-
-                                    <span className="escalation-icon">
-                                        ↗
-                                    </span>
-
-                                    <div>
-                                        <strong>
-                                            Need more help?
-                                        </strong>
-
-                                        <span>
-                                            Connect with a human support agent
-                                        </span>
-                                    </div>
-
-                                </div>
-
-                                <button
-                                    className="escalation-button"
-                                    onClick={() =>
-                                        setShowEscalateModal(true)
-                                    }
-                                >
-                                    Escalate to Human
-                                </button>
-
-                            </div>
-                        )}
-
+                        
                         <ChatInput
                             onSend={handleSend}
                             disabled={loading}

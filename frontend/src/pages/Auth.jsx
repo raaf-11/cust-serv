@@ -124,9 +124,13 @@ function Auth() {
 
         <div>
 
-            <h1>
+            <h1
+                className="auth-title">
 
-                SmartTech Support Copilot
+                
+
+
+                Help Desk
 
             </h1>
 
@@ -259,6 +263,7 @@ function Auth() {
                 }
 
             </button>
+            
 
         </div>
 

@@ -1,6 +1,6 @@
 class ConfidenceService:
 
-    def __init__(self, threshold: float = 0.60):
+    def __init__(self, threshold: float = 0.40):
         self.threshold = threshold
 
     def calculate_confidence(

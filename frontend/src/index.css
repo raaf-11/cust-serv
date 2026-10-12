@@ -95,7 +95,10 @@ h2 {
 p {
   margin: 0;
 }
-
+/* Login page title */
+.auth-title {
+  color: #3E684B;
+}
 code,
 .counter {
   font-family: var(--mono);
