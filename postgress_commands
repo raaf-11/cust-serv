@@ -1,4 +1,0 @@
-docker exec -it postgres psql -U postgres
-\dt -> for displaying all tables
-\q -> to exit
-\c customer_support

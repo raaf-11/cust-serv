@@ -1,4 +1,4 @@
-from fastapi import APIRouter, HTTPException
+from fastapi import APIRouter, Depends, HTTPException
 from app.schemas.auth import (
     RegisterRequest,
     LoginRequest,
@@ -6,6 +6,8 @@ from app.schemas.auth import (
 )
 from app.services.auth_service import auth_service
 from app.dependencies.auth import require_employee
+from app.core.config import settings
+from app.core.rate_limiter import limit_by_ip
 
 
 
@@ -15,7 +17,10 @@ router = APIRouter(
 )
 
 
-@router.post("/register")
+@router.post(
+    "/register",
+    dependencies=[Depends(limit_by_ip("register", (settings.REGISTER_RATE_PER_HOUR, 3600)))]
+)
 def register(
     request: RegisterRequest
 ):
@@ -37,7 +42,9 @@ def register(
 
 @router.post(
     "/login",
-    response_model=TokenResponse
+    response_model=TokenResponse,
+    # Per-IP limit against password guessing.
+    dependencies=[Depends(limit_by_ip("login", (settings.LOGIN_RATE_PER_MINUTE, 60)))]
 )
 def login(
     request: LoginRequest

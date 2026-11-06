@@ -71,17 +71,26 @@ def delete_session(
     )
 ):
 
-    deleted = chat_session_service.delete_session(
+    result = chat_session_service.delete_session(
         session_id=session_id,
         user_id=current_user.id
     )
 
-    if not deleted:
+    if result == "not_found":
         raise HTTPException(
             status_code=404,
             detail="Session not found"
         )
 
+    if result == "has_active_ticket":
+        raise HTTPException(
+            status_code=409,
+            detail=(
+                "This chat has an open support ticket. You can delete it "
+                "once the support team has resolved the ticket."
+            )
+        )
+
     return {
         "message": "Session deleted"
-    }
+    }

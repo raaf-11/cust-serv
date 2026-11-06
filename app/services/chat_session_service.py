@@ -1,6 +1,7 @@
 from app.db.database import SessionLocal
 from app.models.chat_session import ChatSession
 from app.models.conversation import Conversation
+from app.models.ticket import Ticket
 
 
 class ChatSessionService:
@@ -102,38 +103,67 @@ class ChatSessionService:
         self,
         session_id: int,
         user_id: int
-    ):
+    ) -> str:
+        """
+        Deletes a chat together with its messages and any RESOLVED tickets.
+
+        Returns:
+            "deleted"    - chat removed
+            "not_found"  - no such chat for this user
+            "has_active_ticket" - an OPEN / IN_PROGRESS ticket still needs
+                                  this conversation, so it is kept
+
+        Tickets reference the chat (tickets.session_id), so they must be
+        removed before the chat itself, otherwise Postgres rejects the
+        delete with a foreign-key error.
+        """
 
         db = SessionLocal()
 
-        session = (
-            db.query(ChatSession)
-            .filter(
-                ChatSession.id == session_id,
-                ChatSession.user_id == user_id
+        try:
+            session = (
+                db.query(ChatSession)
+                .filter(
+                    ChatSession.id == session_id,
+                    ChatSession.user_id == user_id
+                )
+                .first()
             )
-            .first()
-        )
 
-        if not session:
+            if not session:
+                return "not_found"
+
+            active_ticket = (
+                db.query(Ticket)
+                .filter(
+                    Ticket.session_id == session_id,
+                    Ticket.status.in_(["OPEN", "IN_PROGRESS"])
+                )
+                .first()
+            )
+
+            if active_ticket:
+                return "has_active_ticket"
+
+            db.query(Ticket).filter(
+                Ticket.session_id == session_id
+            ).delete(synchronize_session=False)
+
+            db.query(Conversation).filter(
+                Conversation.session_id == session_id
+            ).delete(synchronize_session=False)
+
+            db.delete(session)
+            db.commit()
+
+            return "deleted"
+
+        except Exception:
+            db.rollback()
+            raise
+
+        finally:
             db.close()
-            return False
-
-        (
-        db.query(Conversation)
-        .filter(
-        Conversation.session_id == session_id
-        )
-        .delete()
-        )
-
-        db.delete(session)
-
-        db.commit()
-
-        db.close()
-
-        return True
 
     def update_title(
     self,
@@ -156,4 +186,4 @@ class ChatSessionService:
         db.close()
 
 
-chat_session_service = ChatSessionService()
+chat_session_service = ChatSessionService()

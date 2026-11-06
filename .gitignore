@@ -1,4 +1,4 @@
 .env
 __pycache__/
 venv/
-evaluation-addon.zip
+evaluation-addon.zip.pytest_cache/

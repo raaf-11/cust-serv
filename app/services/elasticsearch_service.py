@@ -89,7 +89,14 @@ class ElasticsearchService:
             size=limit,
             query={
                 "match": {
-                    "text": query
+                    "text": {
+                        "query": query,
+                        # Tolerate small typos ("laptp" still matches
+                        # "laptop"). AUTO = 0 edits for 1-2 chars,
+                        # 1 edit for 3-5 chars, 2 edits for longer words.
+                        "fuzziness": "AUTO",
+                        "prefix_length": 1
+                    }
                 }
             }
         )
@@ -105,6 +112,24 @@ class ElasticsearchService:
             results.append(payload)
 
         return results
+
+    def get_all_texts(self) -> list[str]:
+        """
+        Returns the text of every indexed chunk. Used to build the
+        vocabulary for typo correction (see query_normalizer.py).
+        """
+
+        from elasticsearch.helpers import scan
+
+        return [
+            hit["_source"]["text"]
+            for hit in scan(
+                self.client,
+                index=self.index_name,
+                query={"query": {"match_all": {}}},
+                _source=["text"]
+            )
+        ]
 
     def delete_index(self):
 

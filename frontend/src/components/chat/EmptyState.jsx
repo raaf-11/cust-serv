@@ -1,23 +1,32 @@
-export default function EmptyState({
-    onNewChat,
-    title = "How can we help?",
-    description = "Start a new conversation with Support Copilot.",
-}) {
+const SUGGESTIONS = [
+    "How long is the warranty on my laptop?",
+    "When will my UPI refund arrive?",
+    "My laptop is running slowly. What should I do?",
+    "How do I reset my password?",
+];
+
+export default function EmptyState({ onSuggestion }) {
     return (
         <div className="empty-state">
-            <div className="empty-state-mark">S</div>
+            <h2>How can we help?</h2>
+            <p>
+                Ask about orders, refunds, warranty, your account or a device
+                problem. If the answer isn't in our help articles, we'll pass
+                you to a member of the support team.
+            </p>
 
-            <h2>{title}</h2>
-
-            <p>{description}</p>
-
-            {onNewChat && (
-                <button
-                    className="empty-state-button"
-                    onClick={onNewChat}
-                >
-                    Start New Conversation
-                </button>
+            {onSuggestion && (
+                <div className="suggestions">
+                    {SUGGESTIONS.map((text) => (
+                        <button
+                            key={text}
+                            className="suggestion"
+                            onClick={() => onSuggestion(text)}
+                        >
+                            {text}
+                        </button>
+                    ))}
+                </div>
             )}
         </div>
     );

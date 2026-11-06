@@ -96,7 +96,32 @@ class TicketService:
                 Ticket.session_id == session_id,
                 Ticket.status == "IN_PROGRESS"
             )
-        .   first()
+            .first()
+        )
+
+        db.close()
+
+        return ticket
+
+    def get_unresolved_ticket(
+        self,
+        session_id: int
+    ):
+        """
+        An OPEN (waiting for an agent) or IN_PROGRESS ticket for this
+        session. Used to avoid creating duplicate tickets.
+        """
+
+        db = SessionLocal()
+
+        ticket = (
+            db.query(Ticket)
+            .filter(
+                Ticket.session_id == session_id,
+                Ticket.status.in_(["OPEN", "IN_PROGRESS"])
+            )
+            .order_by(Ticket.created_at.desc())
+            .first()
         )
 
         db.close()

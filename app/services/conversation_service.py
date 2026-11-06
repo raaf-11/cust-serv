@@ -57,5 +57,32 @@ class ConversationService:
 
         return history
 
+    def get_recent_ai_messages(
+        self,
+        session_id: int,
+        limit: int = 5
+    ) -> list[str]:
+        """Most recent bot replies in this session, oldest first."""
+
+        db = SessionLocal()
+
+        conversations = (
+            db.query(Conversation)
+            .filter(
+                Conversation.session_id == session_id,
+                Conversation.sender == "AI"
+            )
+            .order_by(
+                Conversation.created_at.desc(),
+                Conversation.id.desc()
+            )
+            .limit(limit)
+            .all()
+        )
+
+        db.close()
+
+        return [c.content for c in reversed(conversations)]
+
 
 conversation_service = ConversationService()

@@ -9,9 +9,13 @@ grade itself as correct just because the answer matches what was retrieved.
 
 import json
 
-import httpx
-
 from app.core.config import settings
+from app.services.llm_service import post_chat_completion
+
+# Use a different model than the one being graded when you can (e.g.
+# JUDGE_MODEL_NAME=llama-3.3-70b-versatile in .env) so the judge doesn't
+# share the answer model's blind spots.
+JUDGE_MODEL_NAME = settings.JUDGE_MODEL_NAME or settings.MODEL_NAME
 
 JUDGE_SYSTEM_PROMPT = """You are a strict evaluator for a customer support AI.
 You will be given a customer question, a reference list of facts/steps that
@@ -35,8 +39,8 @@ async def judge_answer(
     generated_answer: str,
 ) -> dict:
     """
-    Calls the same LLM backend the app uses (Groq, per settings.MODEL_NAME)
-    to score a generated answer. Returns {"score": int | None, "reasoning": str}.
+    Calls the same LLM backend the app uses (Groq, per JUDGE_MODEL_NAME or
+    settings.MODEL_NAME) to score a generated answer. Returns {"score": int | None, "reasoning": str}.
     score is None if the call failed or the response couldn't be parsed —
     callers should treat None as "unscored", not as a failing score.
     """
@@ -48,13 +52,8 @@ async def judge_answer(
         f"AI's actual answer:\n{generated_answer}"
     )
 
-    headers = {
-        "Authorization": f"Bearer {settings.OPENROUTER_API_KEY}",
-        "Content-Type": "application/json",
-    }
-
     payload = {
-        "model": settings.MODEL_NAME,
+        "model": JUDGE_MODEL_NAME,
         "messages": [
             {"role": "system", "content": JUDGE_SYSTEM_PROMPT},
             {"role": "user", "content": user_prompt},
@@ -62,31 +61,30 @@ async def judge_answer(
         "temperature": 0.0,
     }
 
+    # gpt-oss models "think" before answering, and those hidden tokens
+    # count towards Groq's tokens-per-minute limit. Keep it short.
+    if "gpt-oss" in JUDGE_MODEL_NAME.lower():
+        payload["reasoning_effort"] = "low"
+
     try:
-        async with httpx.AsyncClient() as client:
-            response = await client.post(
-                "https://api.groq.com/openai/v1/chat/completions",
-                headers=headers,
-                json=payload,
-                timeout=60,
-            )
-            response.raise_for_status()
-            data = response.json()
-            raw = data["choices"][0]["message"]["content"].strip()
+        # Same throttle + 429 retry as the app, so the judge and the
+        # pipeline share one Groq budget instead of fighting over it.
+        data = await post_chat_completion(payload)
+        raw = data["choices"][0]["message"]["content"].strip()
 
-            # Some models wrap JSON in a markdown fence despite instructions.
-            if raw.startswith("```"):
-                raw = raw.strip("`")
-                if "\n" in raw:
-                    first_line, rest = raw.split("\n", 1)
-                    raw = rest if first_line.strip().lower() in ("", "json") else raw
+        # Some models wrap JSON in a markdown fence despite instructions.
+        if raw.startswith("```"):
+            raw = raw.strip("`")
+            if "\n" in raw:
+                first_line, rest = raw.split("\n", 1)
+                raw = rest if first_line.strip().lower() in ("", "json") else raw
 
-            parsed = json.loads(raw)
+        parsed = json.loads(raw)
 
-            return {
-                "score": int(parsed["score"]),
-                "reasoning": parsed.get("reasoning", ""),
-            }
+        return {
+            "score": int(parsed["score"]),
+            "reasoning": parsed.get("reasoning", ""),
+        }
 
     except Exception as e:
         return {

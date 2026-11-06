@@ -1,70 +1,45 @@
 import {
     createContext,
     useContext,
-    useEffect,
     useState
 } from "react";
 
 const AuthContext = createContext();
 
+// Read the saved login synchronously, so a page refresh on /chat or
+// /employee doesn't bounce the user back to the login screen.
+function readSavedUser() {
+    try {
+        const saved = localStorage.getItem("user");
+        return saved ? JSON.parse(saved) : null;
+    } catch {
+        return null;
+    }
+}
+
 export function AuthProvider({ children }) {
 
-    const [token, setToken] = useState(null);
-    const [user, setUser] = useState(null);
+    const [token, setToken] = useState(
+        () => localStorage.getItem("token")
+    );
 
-    useEffect(() => {
+    const [user, setUser] = useState(readSavedUser);
 
-        const savedToken = localStorage.getItem("token");
-        const savedUser = localStorage.getItem("user");
-
-        if (savedToken) {
-
-            setToken(savedToken);
-
-        }
-
-        if (savedUser) {
-
-            setUser(
-                JSON.parse(savedUser)
-            );
-
-        }
-
-    }, []);
-
-    function login(token, user) {
-
-        localStorage.setItem(
-            "token",
-            token
-        );
-
-        localStorage.setItem(
-            "user",
-            JSON.stringify(user)
-        );
-
-        setToken(token);
-
-        setUser(user);
-
+    function login(newToken, newUser) {
+        localStorage.setItem("token", newToken);
+        localStorage.setItem("user", JSON.stringify(newUser));
+        setToken(newToken);
+        setUser(newUser);
     }
 
     function logout() {
-
         localStorage.removeItem("token");
-
         localStorage.removeItem("user");
-
         setToken(null);
-
         setUser(null);
-
     }
 
     return (
-
         <AuthContext.Provider
             value={{
                 token,
@@ -74,19 +49,12 @@ export function AuthProvider({ children }) {
                 isAuthenticated: !!token
             }}
         >
-
             {children}
-
         </AuthContext.Provider>
-
     );
-
 }
 
+// eslint-disable-next-line react-refresh/only-export-components
 export function useAuth() {
-
-    return useContext(
-        AuthContext
-    );
-
+    return useContext(AuthContext);
 }

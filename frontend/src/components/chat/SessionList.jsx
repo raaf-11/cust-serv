@@ -4,23 +4,19 @@ export default function SessionList({
     sessions,
     selectedSession,
     onSelectSession,
-    onDelete
+    onDelete,
 }) {
     return (
-        <div className="session-list">
+        <ul className="session-list">
             {sessions.map((session) => (
                 <SessionItem
                     key={session.id}
                     session={session}
-                    selected={
-                        selectedSession?.id === session.id
-                    }
-                    onClick={() =>
-                        onSelectSession(session)
-                    }
+                    selected={selectedSession?.id === session.id}
+                    onClick={() => onSelectSession(session)}
                     onDelete={onDelete}
                 />
             ))}
-        </div>
+        </ul>
     );
 }

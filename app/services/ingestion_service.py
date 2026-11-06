@@ -51,5 +51,10 @@ class IngestionService:
 
         print(f"Ingested {len(payloads)} chunks into Qdrant and Elasticsearch.")
 
+        # New words may have been added to the KB; rebuild the typo
+        # correction vocabulary so they're recognised immediately.
+        from app.services.retrieval_service import query_normalizer
+        query_normalizer.refresh()
+
 
 ingestion_service = IngestionService()

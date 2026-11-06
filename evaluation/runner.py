@@ -29,15 +29,35 @@ import asyncio
 import time
 
 from app.services.confidence_service import confidence_service
-from app.services.llm_service import FALLBACK_RESPONSE, llm_service
+from app.services.llm_service import (
+    FALLBACK_RESPONSE,
+    RATE_LIMITED_RESPONSE,
+    llm_service,
+)
 from app.services.retrieval_service import retrieval_service
 
 from evaluation.llm_judge import judge_answer
-from evaluation.metrics import contains_answer, retrieval_hit
+from evaluation.metrics import contains_answer, declined_to_answer, retrieval_hit
+from evaluation.retrieval_metrics import score_ranking
 
-DEFAULT_DELAY_BETWEEN_ITEMS_S = 1.5
-DEFAULT_MAX_RETRIES = 3
-DEFAULT_RETRY_BACKOFF_BASE_S = 5.0
+# llm_service now throttles itself to LLM_REQUESTS/TOKENS_PER_MINUTE and
+# retries 429s (see app/services/llm_rate_limiter.py), so a long fixed
+# pause between questions is no longer needed. The retries below are a
+# second safety net for anything that still slips through.
+DEFAULT_DELAY_BETWEEN_ITEMS_S = 1.0
+DEFAULT_MAX_RETRIES = 4
+DEFAULT_RETRY_BACKOFF_BASE_S = 15.0
+
+
+def _chunk_level(documents: list[dict], evidence) -> dict:
+    if not evidence:
+        return {"chunk_hit": None, "chunk_rank": None, "chunk_rr": None}
+    scores = score_ranking([d["text"] for d in documents], evidence, ks=(5,))
+    return {
+        "chunk_hit": bool(scores["hit@5"]),
+        "chunk_rank": scores["first_relevant_rank"],
+        "chunk_rr": scores["mrr"],
+    }
 
 
 class EvalRunner:
@@ -71,7 +91,7 @@ class EvalRunner:
                 context=context, history=history, question=question
             )
 
-            if answer != FALLBACK_RESPONSE:
+            if answer not in (FALLBACK_RESPONSE, RATE_LIMITED_RESPONSE):
                 return answer
 
             if attempt < self.max_retries:
@@ -138,18 +158,31 @@ class EvalRunner:
             "category": item["category"],
             "question": item["question"],
             "question_type": item["question_type"],
+            "difficulty": item.get("difficulty", "easy"),
             "expected_source": item.get("expected_source"),
             "generated_answer": answer,
             "confidence": confidence,
             "would_escalate": would_escalate,
             "retrieved_sources": [d.get("document_name") for d in documents],
             "retrieval_hit": retrieval_hit(documents, item.get("expected_source")),
+            # Chunk-level: did a chunk that actually contains the answer
+            # come back, and at what rank? None when the item has no
+            # `evidence` labels (e.g. golden_dataset v1).
+            **_chunk_level(documents, item.get("evidence")),
             "retrieval_time_s": round(retrieval_time_s, 3),
             "generation_time_s": round(generation_time_s, 3),
         }
 
         if item["question_type"] == "factual":
             result["is_correct"] = contains_answer(answer, item["expected_answer"])
+            result["judge_score"] = None
+            result["judge_reasoning"] = None
+        elif item["question_type"] == "out_of_scope":
+            # The knowledge base can't answer these. Correct behaviour is to
+            # not make something up: either the confidence check flags it
+            # (the app would ask to rephrase / escalate) or the model says
+            # it doesn't have the information.
+            result["is_correct"] = would_escalate or declined_to_answer(answer)
             result["judge_score"] = None
             result["judge_reasoning"] = None
         else:
@@ -181,10 +214,19 @@ class EvalRunner:
         """
 
         results = []
+        self.skipped = []
         total = len(self.dataset)
 
         for index, item in enumerate(self.dataset, start=1):
-            result = await self.evaluate_item(item)
+            try:
+                result = await self.evaluate_item(item)
+            except Exception as e:
+                # One bad question (e.g. a persistent rate limit) shouldn't
+                # throw away the whole run. Skip it and report it at the end.
+                print(f"  [skip] {item['id']}: {e!r}")
+                self.skipped.append({"id": item["id"], "error": repr(e)})
+                continue
+
             results.append(result)
 
             if on_item_done:

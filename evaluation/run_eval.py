@@ -32,12 +32,12 @@ from evaluation.runner import (
     EvalRunner,
 )
 
-DATASET_PATH = Path(__file__).parent / "golden_dataset.json"
+DATASET_PATH = Path(__file__).parent / "golden_dataset_v2.json"
 RESULTS_DIR = Path(__file__).parent.parent / "results"
 
 
-def load_dataset() -> list[dict]:
-    with open(DATASET_PATH, "r", encoding="utf-8") as f:
+def load_dataset(path: Path = DATASET_PATH) -> list[dict]:
+    with open(path, "r", encoding="utf-8") as f:
         return json.load(f)
 
 
@@ -54,7 +54,11 @@ def print_summary(report: dict) -> None:
     print("EVALUATION SUMMARY")
     print("=" * 60)
     print(f"Total questions:            {report['total_items']}")
-    print(f"Retrieval hit rate:         {_fmt_pct(report['retrieval_hit_rate'])}")
+    print(f"Overall accuracy:          {_fmt_pct(report['overall_accuracy'])}")
+    print(f"Doc-level hit rate (old):   {_fmt_pct(report['retrieval_hit_rate'])}")
+    if report.get("chunk_hit_rate") is not None:
+        print(f"Chunk hit@1 / hit@5:       {_fmt_pct(report['chunk_hit_at_1'])} / {_fmt_pct(report['chunk_hit_rate'])}")
+        print(f"Chunk MRR:                 {report['chunk_mrr']:.3f}")
     print(
         f"Factual answer accuracy:   "
         f"{_fmt_pct(report['factual_accuracy'])} "
@@ -64,6 +68,11 @@ def print_summary(report: dict) -> None:
         f"Avg open-ended judge score: "
         f"{_fmt_score(report['avg_judge_score'])} / 5 "
         f"({report['open_ended_count']} questions)"
+    )
+    print(
+        f"Out-of-scope handled:      "
+        f"{_fmt_pct(report['out_of_scope_accuracy'])} "
+        f"({report['out_of_scope_count']} questions, no made-up answer)"
     )
     print(f"Avg confidence score:      {report['avg_confidence']:.3f}")
     print(f"Escalation rate:           {_fmt_pct(report['escalation_rate'])}")
@@ -76,6 +85,10 @@ def print_summary(report: dict) -> None:
         f"{report['avg_retrieval_time_s']:.2f}s / "
         f"{report['avg_generation_time_s']:.2f}s"
     )
+    print("\nPer difficulty:")
+    for level, stats in report["per_difficulty"].items():
+        rate = stats["correct"] / stats["total"] if stats["total"] else 0.0
+        print(f"  {level:<20} {stats['correct']}/{stats['total']} ({rate * 100:.0f}%)")
     print("\nPer category:")
     for category, stats in report["per_category"].items():
         rate = stats["correct"] / stats["total"] if stats["total"] else 0.0
@@ -90,7 +103,17 @@ def write_markdown_report(path: Path, report: dict, results: list[dict]) -> None
     lines.append("## Summary")
     lines.append("")
     lines.append(f"- **Total questions:** {report['total_items']}")
-    lines.append(f"- **Retrieval hit rate:** {_fmt_pct(report['retrieval_hit_rate'])}")
+    if report.get("skipped"):
+        skipped_ids = ", ".join(s["id"] for s in report["skipped"])
+        lines.append(f"- **Skipped (API errors, not scored):** {len(report['skipped'])} ({skipped_ids})")
+    lines.append(f"- **Overall accuracy:** {_fmt_pct(report['overall_accuracy'])}")
+    lines.append(f"- **Doc-level hit rate (right PDF in top 5):** {_fmt_pct(report['retrieval_hit_rate'])}")
+    if report.get("chunk_hit_rate") is not None:
+        lines.append(
+            f"- **Chunk-level hit@1 / hit@5 (answer-bearing chunk retrieved):** "
+            f"{_fmt_pct(report['chunk_hit_at_1'])} / {_fmt_pct(report['chunk_hit_rate'])}, "
+            f"MRR {report['chunk_mrr']:.3f}"
+        )
     lines.append(
         f"- **Factual answer accuracy:** {_fmt_pct(report['factual_accuracy'])} "
         f"({report['factual_count']} questions)"
@@ -98,6 +121,11 @@ def write_markdown_report(path: Path, report: dict, results: list[dict]) -> None
     lines.append(
         f"- **Avg open-ended judge score:** {_fmt_score(report['avg_judge_score'])} / 5 "
         f"({report['open_ended_count']} questions)"
+    )
+    lines.append(
+        f"- **Out-of-scope questions handled safely:** "
+        f"{_fmt_pct(report['out_of_scope_accuracy'])} "
+        f"({report['out_of_scope_count']} questions — no made-up answer)"
     )
     lines.append(f"- **Avg confidence score:** {report['avg_confidence']:.3f}")
     lines.append(f"- **Escalation rate:** {_fmt_pct(report['escalation_rate'])}")
@@ -113,6 +141,14 @@ def write_markdown_report(path: Path, report: dict, results: list[dict]) -> None
         f"- **Avg retrieval / generation time:** "
         f"{report['avg_retrieval_time_s']:.2f}s / {report['avg_generation_time_s']:.2f}s"
     )
+    lines.append("")
+    lines.append("## Per difficulty")
+    lines.append("")
+    lines.append("| Difficulty | Correct | Total | Rate |")
+    lines.append("|---|---|---|---|")
+    for level, stats in report["per_difficulty"].items():
+        rate = stats["correct"] / stats["total"] if stats["total"] else 0.0
+        lines.append(f"| {level} | {stats['correct']} | {stats['total']} | {rate * 100:.0f}% |")
     lines.append("")
     lines.append("## Per category")
     lines.append("")
@@ -146,6 +182,8 @@ def write_markdown_report(path: Path, report: dict, results: list[dict]) -> None
         lines.append(f"- Retrieved sources: {r['retrieved_sources']}")
         if r["question_type"] == "factual":
             lines.append(f"- Expected answer contains: (see golden_dataset.json)")
+        elif r["question_type"] == "out_of_scope":
+            lines.append("- Expected: the bot should say it doesn't have the information (not in the documents)")
         else:
             lines.append(f"- Judge score: {r['judge_score']}")
             lines.append(f"- Judge reasoning: {r['judge_reasoning']}")
@@ -169,14 +207,18 @@ def parse_args() -> argparse.Namespace:
         "--backoff-base", type=float, default=DEFAULT_RETRY_BACKOFF_BASE_S,
         help=f"Base seconds for exponential backoff between retries (default: {DEFAULT_RETRY_BACKOFF_BASE_S})."
     )
+    parser.add_argument(
+        "--dataset", type=Path, default=DATASET_PATH,
+        help="Golden dataset JSON (default: golden_dataset_v2.json; v1 is golden_dataset.json)."
+    )
     return parser.parse_args()
 
 
 async def main() -> None:
     args = parse_args()
 
-    dataset = load_dataset()
-    print(f"Loaded {len(dataset)} golden questions from {DATASET_PATH.name}\n")
+    dataset = load_dataset(args.dataset)
+    print(f"Loaded {len(dataset)} golden questions from {args.dataset.name}\n")
 
     runner = EvalRunner(
         dataset,
@@ -196,7 +238,14 @@ async def main() -> None:
 
     results = await runner.run_all(on_item_done=on_item_done)
     report = aggregate_report(results)
+    report["skipped"] = getattr(runner, "skipped", [])
     print_summary(report)
+
+    if report["skipped"]:
+        print(f"\nSkipped {len(report['skipped'])} question(s) after repeated API errors "
+              f"(not counted in the scores):")
+        for s in report["skipped"]:
+            print(f"  {s['id']}: {s['error'][:120]}")
 
     RESULTS_DIR.mkdir(exist_ok=True)
     timestamp = datetime.now().strftime("%Y%m%d_%H%M%S")

@@ -15,6 +15,9 @@ from app.dependencies.auth import (
 
 from app.models.user import User
 
+from app.core.config import settings
+from app.core.rate_limiter import limit_by_user
+
 
 router = APIRouter(
     prefix="/chat",
@@ -24,7 +27,18 @@ router = APIRouter(
 
 @router.post(
     "/",
-    response_model=ChatResponse
+    response_model=ChatResponse,
+    # Burst limit + hourly budget per user. Runs before the handler, so a
+    # rejected message is never saved, retrieved or sent to the LLM.
+    dependencies=[
+        Depends(
+            limit_by_user(
+                "chat",
+                (settings.CHAT_RATE_PER_MINUTE, 60),
+                (settings.CHAT_RATE_PER_HOUR, 3600),
+            )
+        )
+    ],
 )
 async def chat(
     request: ChatRequest,

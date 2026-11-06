@@ -1,0 +1,120 @@
+.auth-page {
+    min-height: 100%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 40px 16px;
+}
+
+.auth-column {
+    width: min(420px, 100%);
+    display: flex;
+    flex-direction: column;
+    gap: 20px;
+}
+
+.auth-brand {
+    padding-left: 2px;
+}
+
+.auth-card {
+    background: var(--white);
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    padding: 8px 28px 28px;
+}
+
+/* Two-option switch at the top of the card */
+.auth-tabs {
+    display: flex;
+    gap: 20px;
+    border-bottom: 1px solid var(--border-light);
+    margin: 0 -28px;
+    padding: 0 28px;
+}
+
+.auth-tabs button {
+    position: relative;
+    padding: 14px 0 12px;
+    border: 0;
+    background: none;
+    font-size: 14px;
+    font-weight: 500;
+    color: var(--text-secondary);
+}
+
+.auth-tabs button:hover {
+    color: var(--text);
+}
+
+.auth-tabs button.active {
+    color: var(--green-dark);
+}
+
+.auth-tabs button.active::after {
+    content: "";
+    position: absolute;
+    left: 0;
+    right: 0;
+    bottom: -1px;
+    height: 2px;
+    border-radius: 2px;
+    background: var(--green);
+}
+
+.auth-heading {
+    margin: 24px 0 20px;
+}
+
+.auth-heading h1 {
+    font-size: 24px;
+    font-weight: 600;
+    line-height: 1.25;
+    letter-spacing: -0.01em;
+    color: var(--green-dark);
+}
+
+.auth-heading p {
+    margin-top: 6px;
+    color: var(--text-secondary);
+    font-size: 14.5px;
+}
+
+.auth-form {
+    display: flex;
+    flex-direction: column;
+    gap: 16px;
+}
+
+.auth-submit {
+    width: 100%;
+    min-height: 44px;
+    margin-top: 4px;
+    font-size: 15px;
+}
+
+.auth-footnote {
+    padding: 0 2px;
+    font-size: 13px;
+    color: var(--text-secondary);
+}
+
+@media (max-width: 480px) {
+    .auth-page {
+        align-items: flex-start;
+        padding-top: 32px;
+    }
+
+    .auth-card {
+        padding: 4px 20px 22px;
+    }
+
+    .auth-tabs {
+        margin: 0 -20px;
+        padding: 0 20px;
+    }
+
+    .auth-heading h1 {
+        font-size: 22px;
+    }
+}

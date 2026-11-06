@@ -1,60 +1,39 @@
 import ReactMarkdown from "react-markdown";
 
+import { clockTime } from "../../utils/time";
+
+const LABELS = {
+    user: "You",
+    assistant: "Assistant",
+    agent: "Support agent",
+};
+
 export default function MessageBubble({
     message,
     role,
+    time,
+    showLabel = true,
 }) {
     const isUser = role === "user";
+    const when = clockTime(time);
 
     return (
-        <div className={`message-row ${isUser ? "user-message-row" : "assistant-message-row"}`}>
-            {!isUser && (
-                <div className="assistant-avatar">
-                    S
+        <div className={`message-row ${role}`}>
+            {showLabel && (
+                <div className="message-label">
+                    {LABELS[role]}
+                    {when && <time>{when}</time>}
                 </div>
             )}
 
-            <div className={`message-wrapper ${isUser ? "user-message-wrapper" : "assistant-message-wrapper"}`}>
-                <div className="message-meta">
-                    <span>
-                        {isUser ? "You" : "Support Copilot"}
-                    </span>
-                </div>
-
-                <div className={`message-bubble ${isUser ? "user-message" : "assistant-message"}`}>
-                    {isUser ? (
-                        <div className="message-text">
-                            {message}
-                        </div>
-                    ) : (
-                        <div className="message-markdown">
-                            <ReactMarkdown
-                                components={{
-                                    p: ({ children }) => (
-                                        <p>{children}</p>
-                                    ),
-                                    ul: ({ children }) => (
-                                        <ul>{children}</ul>
-                                    ),
-                                    ol: ({ children }) => (
-                                        <ol>{children}</ol>
-                                    ),
-                                    h1: ({ children }) => (
-                                        <h1>{children}</h1>
-                                    ),
-                                    h2: ({ children }) => (
-                                        <h2>{children}</h2>
-                                    ),
-                                    h3: ({ children }) => (
-                                        <h3>{children}</h3>
-                                    ),
-                                }}
-                            >
-                                {message}
-                            </ReactMarkdown>
-                        </div>
-                    )}
-                </div>
+            <div className={`bubble ${role}`}>
+                {isUser ? (
+                    <p className="bubble-text">{message}</p>
+                ) : (
+                    <div className="markdown">
+                        <ReactMarkdown>{message}</ReactMarkdown>
+                    </div>
+                )}
             </div>
         </div>
     );

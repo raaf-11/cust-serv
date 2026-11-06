@@ -4,6 +4,50 @@ Automated evaluation for the RAG pipeline: retrieval quality, answer
 correctness, and confidence/escalation calibration — run either as a
 detailed report or as a pass/fail regression suite.
 
+## Retrieval benchmark (chunk-level) — start here
+
+```bash
+python -m evaluation.retrieval_eval
+```
+
+No LLM calls (free, ~1 minute). Writes `results/retrieval_eval_<ts>.md/.json`.
+
+**Why the old `retrieval_hit_rate` was always 100%:** it only checked that
+the expected *PDF* was somewhere in the top 5 chunks. There are just 8 PDFs,
+so that is almost guaranteed even when the chunk that holds the answer was
+never retrieved. It's kept as `doc_hit@5` for contrast only.
+
+**What's measured now:** every question in `golden_dataset_v2.json` has
+`evidence` — short verbatim snippets from the PDF that contain the answer.
+A retrieved chunk counts as relevant only if it contains one of them (case,
+dashes and line breaks are normalised). The KB has ~96 chunks, so ranking
+the right one first is a real test. Metrics: Hit@1/3/5, Recall@5 (all
+facts for multi-hop questions), MRR, nDCG@5, plus candidate recall
+(was the answer in the reranker's input at all?) and confidence AUROC
+(answerable vs. out-of-scope).
+
+**Ablation:** the same questions are run through `bm25`, `vector`,
+`hybrid_rrf` (fusion, no reranker), `hybrid_rerank` (production) and
+production without typo correction, so you can quote what each component
+adds — e.g. "cross-encoder reranking raised MRR from X to Y".
+
+**Dataset v2** (104 questions): the 52 v1 questions plus 52 harder ones —
+`paraphrase` (little word overlap with the PDF), `confusable` (the same
+number/phrase appears in other chunks, e.g. five different "48 hours"),
+`multi_hop` (two facts, often two chunks), heavier `typo`s, long
+`conversational` messages, and near-miss `out_of_scope` questions.
+`run_eval` now uses v2 by default (`--dataset evaluation/golden_dataset.json`
+for v1) and also reports chunk-level hit@1/hit@5/MRR.
+
+To add a question: copy the exact sentence/table row from the PDF into
+`evidence` (`["fact"]`, or `[["alt 1", "alt 2"]]` when the fact appears in
+two places, or `["fact A", "fact B"]` for multi-hop). Run
+`pytest tests/test_retrieval_metrics.py` to check the file is well formed.
+
+**Before running:** reset Qdrant + Elasticsearch and ingest once. Ingestion
+uses random ids, so ingesting twice duplicates every chunk; the report
+warns if it sees duplicates.
+
 ## Why this exists
 
 `Test Questions.txt` was a manual QA checklist. This package turns it into
@@ -26,7 +70,7 @@ catching the right things (see "Confidence calibration" below).
 | Retrieval | `retrieval_hit_rate` | Did the correct source PDF get retrieved at all? |
 | Answer quality (factual) | `factual_accuracy` | Does the generated answer contain the expected fact? (heuristic substring/token match — see `metrics.contains_answer`) |
 | Answer quality (open-ended) | `avg_judge_score` | An LLM judge (1–5) scores answers like "my laptop is slow" against hand-written reference notes pulled from the source PDF — not against the retrieved context, so a bad retrieval can't grade itself as correct. |
-| Confidence calibration | `escalation_rate`, `false_escalation_rate`, `missed_escalation_rate` | Is the 0.60 threshold in `confidence_service.py` well-tuned? See below. |
+| Confidence calibration | `escalation_rate`, `false_escalation_rate`, `missed_escalation_rate` | Is `CONFIDENCE_THRESHOLD` (0.25, see `confidence_service.py`) well-tuned? See below. |
 | Performance | `avg_retrieval_time_s`, `avg_generation_time_s` | Rough latency budget per stage. |
 
 ### Confidence calibration, explained
