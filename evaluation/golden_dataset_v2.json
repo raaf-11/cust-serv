@@ -1240,5 +1240,179 @@
     "expected_source": null,
     "evidence": [],
     "note": "smartwatches are not a listed category"
+  },
+  {
+    "id": "typo-11",
+    "question": "whats the warranty on refurnishd products",
+    "difficulty": "typo",
+    "category": "Warranty",
+    "question_type": "factual",
+    "expected_answer": "90 days",
+    "expected_source": "Warranty_Policy.pdf",
+    "evidence": [
+      "Refurbished Products 90 Days"
+    ]
+  },
+  {
+    "id": "typo-12",
+    "question": "how long is the warrenty on laptp",
+    "difficulty": "typo",
+    "category": "Warranty",
+    "question_type": "factual",
+    "expected_answer": "2 years",
+    "expected_source": "Warranty_Policy.pdf",
+    "evidence": [
+      "Laptops & Notebooks 2 Years"
+    ]
+  },
+  {
+    "id": "typo-13",
+    "question": "standard waranty for mobil phones?",
+    "difficulty": "typo",
+    "category": "Warranty",
+    "question_type": "factual",
+    "expected_answer": "1 year",
+    "expected_source": "Warranty_Policy.pdf",
+    "evidence": [
+      "Mobile Phones & Tablets 1 Year"
+    ]
+  },
+  {
+    "id": "typo-14",
+    "question": "how many days do i have to registr my prodct for warranty",
+    "difficulty": "typo",
+    "category": "Warranty",
+    "question_type": "factual",
+    "expected_answer": "30 days",
+    "expected_source": "Warranty_Policy.pdf",
+    "evidence": [
+      [
+        "register your product within 30 days of purchase to activate",
+        "mobile app within 30 days of purchase"
+      ]
+    ]
+  },
+  {
+    "id": "typo-15",
+    "question": "how long dose a credt card refund take",
+    "difficulty": "typo",
+    "category": "Refunds",
+    "question_type": "factual",
+    "expected_answer": "5-7 business days",
+    "expected_source": "Refund_and_Return_Policy.pdf",
+    "evidence": [
+      "Credit / Debit Card Original card 5–7 business days"
+    ]
+  },
+  {
+    "id": "typo-16",
+    "question": "smarttech walet refnd how long",
+    "difficulty": "typo",
+    "category": "Refunds",
+    "question_type": "factual",
+    "expected_answer": "24 hours",
+    "expected_source": "Refund_and_Return_Policy.pdf",
+    "evidence": [
+      "SmartTech Wallet Wallet credit Within 24 hours"
+    ]
+  },
+  {
+    "id": "typo-17",
+    "question": "can i retrun an item if i chnaged my mind",
+    "difficulty": "typo",
+    "category": "Refunds",
+    "question_type": "factual",
+    "expected_answer": "15 days",
+    "expected_source": "Refund_and_Return_Policy.pdf",
+    "evidence": [
+      "Change of mind (unused) Within 15 days of delivery"
+    ]
+  },
+  {
+    "id": "typo-18",
+    "question": "how many days is my pakage held at the hub",
+    "difficulty": "typo",
+    "category": "Shipping",
+    "question_type": "factual",
+    "expected_answer": "7 days",
+    "expected_source": "Shipping_and_Delivery_Policy.pdf",
+    "evidence": [
+      "held at the nearest logistics hub for 7 days"
+    ]
+  },
+  {
+    "id": "typo-19",
+    "question": "how many earnd leave days do employes get",
+    "difficulty": "typo",
+    "category": "Employees",
+    "question_type": "factual",
+    "expected_answer": "18 days",
+    "expected_source": "Employee_Handbook.pdf",
+    "evidence": [
+      "Earned Leave (EL) 18 days"
+    ]
+  },
+  {
+    "id": "typo-20",
+    "question": "how many weeks of maternty leave",
+    "difficulty": "typo",
+    "category": "Employees",
+    "question_type": "factual",
+    "expected_answer": "26 weeks",
+    "expected_source": "Employee_Handbook.pdf",
+    "evidence": [
+      "Maternity Leave 26 weeks"
+    ]
+  },
+  {
+    "id": "typo-21",
+    "question": "minimum pasword lenght?",
+    "difficulty": "typo",
+    "category": "Security",
+    "question_type": "factual",
+    "expected_answer": "12 characters",
+    "expected_source": "Password_Reset_and_Account_Security.pdf",
+    "evidence": [
+      "Minimum 12 characters in length"
+    ]
+  },
+  {
+    "id": "typo-22",
+    "question": "how many faild login atempts before account is locked",
+    "difficulty": "typo",
+    "category": "Security",
+    "question_type": "factual",
+    "expected_answer": "5",
+    "expected_source": "Password_Reset_and_Account_Security.pdf",
+    "evidence": [
+      "locked after 5 consecutive failed login attempts"
+    ]
+  },
+  {
+    "id": "typo-23",
+    "question": "my laptp is runing realy slow",
+    "difficulty": "typo",
+    "category": "Technical Support",
+    "question_type": "open_ended",
+    "reference_notes": "A good answer should suggest some of: restarting the laptop, checking Task Manager for high CPU/RAM usage processes, disabling unnecessary startup programs, running Disk Cleanup, ensuring the OS is fully updated, checking for overheating/cleaning vents, and considering a RAM upgrade if usage is consistently above 85%.",
+    "expected_source": "Laptop_Troubleshooting_Guide.pdf",
+    "evidence": [
+      [
+        "2.1 Laptop Running Slowly",
+        "Open Task Manager (Ctrl+Shift+Esc) and check for high CPU"
+      ]
+    ]
+  },
+  {
+    "id": "typo-24",
+    "question": "how fast shoud a live chat complant be acknowledged",
+    "difficulty": "typo",
+    "category": "Complaints",
+    "question_type": "factual",
+    "expected_answer": "60 seconds",
+    "expected_source": "Complaint_Resolution_Guide.pdf",
+    "evidence": [
+      "Live Chat: Within 60 seconds"
+    ]
   }
 ]

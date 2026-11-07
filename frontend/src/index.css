@@ -1,10 +1,5 @@
 @import url("https://fonts.googleapis.com/css2?family=IBM+Plex+Sans:wght@400;500;600&display=swap");
 
-/* =========================================================
-   Theme
-   Same palette as before: cream paper, SmartTech green.
-========================================================= */
-
 :root {
     --cream: #F9FAE6;
     --cream-dark: #F1F2DF;
@@ -87,7 +82,6 @@ button:disabled {
     outline-offset: 2px;
 }
 
-/* The graph-paper background used behind conversations. */
 .grid-paper {
     background-color: var(--cream);
     background-image:
@@ -95,10 +89,6 @@ button:disabled {
         linear-gradient(to bottom, var(--grid) 1px, transparent 1px);
     background-size: 16px 16px;
 }
-
-/* =========================================================
-   Shared controls
-========================================================= */
 
 .btn {
     display: inline-flex;
@@ -222,7 +212,6 @@ button:disabled {
     box-shadow: 0 0 0 3px rgba(74, 124, 89, 0.15);
 }
 
-/* Brand mark: a small green tile with the H of Help Desk. */
 .brand {
     display: flex;
     align-items: center;
@@ -297,7 +286,6 @@ button:disabled {
     border: 0;
 }
 
-/* Thin scrollbars inside panels. */
 .scroll {
     overflow-y: auto;
     scrollbar-width: thin;
@@ -313,7 +301,6 @@ button:disabled {
     border-radius: 8px;
 }
 
-/* Modal (used for escalation) */
 .modal-backdrop {
     position: fixed;
     inset: 0;

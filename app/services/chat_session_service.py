@@ -5,53 +5,28 @@ from app.models.ticket import Ticket
 
 
 class ChatSessionService:
-
-    def create_session(
-        self,
-        user_id: int,
-        title: str = "New Chat"
-    ) -> ChatSession:
-
+    def create_session(self, user_id: int, title: str = "New Chat") -> ChatSession:
         db = SessionLocal()
-
-        session = ChatSession(
-            user_id=user_id,
-            title=title
-        )
-
+        session = ChatSession(user_id=user_id, title=title)
         db.add(session)
         db.commit()
         db.refresh(session)
         db.close()
         return session
 
-
-    def get_session(
-        self,
-        session_id: int,
-        user_id: int
-    ):
-
+    def get_session(self, session_id: int, user_id: int):
         db = SessionLocal()
 
         session = (
             db.query(ChatSession)
-            .filter(
-                ChatSession.id == session_id,
-                ChatSession.user_id == user_id
-            )
+            .filter(ChatSession.id == session_id, ChatSession.user_id == user_id)
             .first()
         )
 
         db.close()
-
         return session
 
-    def get_sessions(
-        self,
-        user_id: int
-    ):
-
+    def get_sessions(self, user_id: int):
         db = SessionLocal()
 
         sessions = (
@@ -62,23 +37,14 @@ class ChatSessionService:
         )
 
         db.close()
-
         return sessions
 
-    def get_messages(
-        self,
-        session_id: int,
-        user_id: int
-    ):
-
+    def get_messages(self, session_id: int, user_id: int):
         db = SessionLocal()
 
         session = (
             db.query(ChatSession)
-            .filter(
-                ChatSession.id == session_id,
-                ChatSession.user_id == user_id
-            )
+            .filter(ChatSession.id == session_id, ChatSession.user_id == user_id)
             .first()
         )
 
@@ -88,45 +54,21 @@ class ChatSessionService:
 
         conversations = (
             db.query(Conversation)
-            .filter(
-                Conversation.session_id == session_id
-            )
+            .filter(Conversation.session_id == session_id)
             .order_by(Conversation.id)
             .all()
         )
 
         db.close()
-
         return conversations
 
-    def delete_session(
-        self,
-        session_id: int,
-        user_id: int
-    ) -> str:
-        """
-        Deletes a chat together with its messages and any RESOLVED tickets.
-
-        Returns:
-            "deleted"    - chat removed
-            "not_found"  - no such chat for this user
-            "has_active_ticket" - an OPEN / IN_PROGRESS ticket still needs
-                                  this conversation, so it is kept
-
-        Tickets reference the chat (tickets.session_id), so they must be
-        removed before the chat itself, otherwise Postgres rejects the
-        delete with a foreign-key error.
-        """
-
+    def delete_session(self, session_id: int, user_id: int) -> str:
         db = SessionLocal()
 
         try:
             session = (
                 db.query(ChatSession)
-                .filter(
-                    ChatSession.id == session_id,
-                    ChatSession.user_id == user_id
-                )
+                .filter(ChatSession.id == session_id, ChatSession.user_id == user_id)
                 .first()
             )
 
@@ -137,7 +79,7 @@ class ChatSessionService:
                 db.query(Ticket)
                 .filter(
                     Ticket.session_id == session_id,
-                    Ticket.status.in_(["OPEN", "IN_PROGRESS"])
+                    Ticket.status.in_(["OPEN", "IN_PROGRESS"]),
                 )
                 .first()
             )
@@ -145,17 +87,16 @@ class ChatSessionService:
             if active_ticket:
                 return "has_active_ticket"
 
-            db.query(Ticket).filter(
-                Ticket.session_id == session_id
-            ).delete(synchronize_session=False)
+            db.query(Ticket).filter(Ticket.session_id == session_id).delete(
+                synchronize_session=False
+            )
 
-            db.query(Conversation).filter(
-                Conversation.session_id == session_id
-            ).delete(synchronize_session=False)
+            db.query(Conversation).filter(Conversation.session_id == session_id).delete(
+                synchronize_session=False
+            )
 
             db.delete(session)
             db.commit()
-
             return "deleted"
 
         except Exception:
@@ -165,19 +106,9 @@ class ChatSessionService:
         finally:
             db.close()
 
-    def update_title(
-    self,
-    session_id: int,
-    title: str
-    ):
-
+    def update_title(self, session_id: int, title: str):
         db = SessionLocal()
-
-        session = (
-            db.query(ChatSession)
-            .filter(ChatSession.id == session_id)
-            .first()
-        )
+        session = db.query(ChatSession).filter(ChatSession.id == session_id).first()
 
         if session:
             session.title = title
@@ -186,4 +117,4 @@ class ChatSessionService:
         db.close()
 
 
-chat_session_service = ChatSessionService()
+chat_session_service = ChatSessionService()

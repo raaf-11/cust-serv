@@ -5,13 +5,8 @@ from app.core.config import settings
 
 engine = create_engine(
     settings.DATABASE_URL,
-    #echo=True
 )
 
-SessionLocal = sessionmaker(
-    autoflush=False,
-    autocommit=False,
-    bind=engine
-)
+SessionLocal = sessionmaker(autoflush=False, autocommit=False, bind=engine)
 
 Base = declarative_base()

@@ -9,44 +9,23 @@ security = HTTPBearer()
 
 
 def get_current_user(
-    credentials: HTTPAuthorizationCredentials = Depends(
-        security
-    )
+    credentials: HTTPAuthorizationCredentials = Depends(security),
 ) -> User:
-
     token = credentials.credentials
-
-    user_id = security_service.verify_access_token(
-        token
-    )
+    user_id = security_service.verify_access_token(token)
 
     if user_id is None:
-
-        raise HTTPException(
-            status_code=401,
-            detail="Invalid token."
-        )
+        raise HTTPException(status_code=401, detail="Invalid token.")
 
     db = SessionLocal()
-
-    user = (
-        db.query(User)
-        .filter(
-            User.id == user_id
-        )
-        .first()
-    )
-
+    user = db.query(User).filter(User.id == user_id).first()
     db.close()
 
     if user is None:
-
-        raise HTTPException(
-            status_code=401,
-            detail="User not found."
-        )
+        raise HTTPException(status_code=401, detail="User not found.")
 
     return user
+
 
 def require_employee(
     current_user=Depends(get_current_user),

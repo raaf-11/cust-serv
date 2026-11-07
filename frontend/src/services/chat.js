@@ -21,7 +21,6 @@ export const sendMessage = async (sessionId, message) => {
         message: message,
     });
 
-
     return response.data;
 };
 

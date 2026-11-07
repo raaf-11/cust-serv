@@ -1,28 +1,3 @@
-"""
-When should the bot hand a conversation to a human?
-
-Old behaviour: any single message with confidence < 0.40 -> ticket.
-That escalated greetings, typos and slightly vague questions on the very
-first try.
-
-New behaviour (in priority order):
-
-1. The user explicitly asks for a person ("talk to a human", "raise a
-   ticket")                                        -> ESCALATE right away
-2. Small talk ("hi", "thanks", "bye")              -> friendly reply, no
-                                                      retrieval, never escalate
-3. Retrieval found nothing useful:
-     - first time in a row                         -> CLARIFY (ask the user to
-                                                      rephrase / add detail)
-     - again right after a CLARIFY / "don't know"  -> ESCALATE
-4. Otherwise                                       -> ANSWER with the LLM
-
-So a human gets involved when the user asks for one, or when the bot has
-genuinely failed twice in a row - not because of one weak score.
-
-Pure Python, no app imports, so it's unit-testable without any services.
-"""
-
 import os
 import re
 from enum import Enum
@@ -35,11 +10,10 @@ class Action(str, Enum):
     SMALL_TALK = "SMALL_TALK"
 
 
-# How many unresolved bot turns in a row before we escalate (default 2:
-# one clarification, then hand-off).
 def _configured_max_unresolved() -> int:
     try:
         from app.core.config import settings
+
         return settings.MAX_UNRESOLVED_TURNS
     except Exception:
         return int(os.getenv("MAX_UNRESOLVED_TURNS", "2"))
@@ -47,7 +21,6 @@ def _configured_max_unresolved() -> int:
 
 MAX_UNRESOLVED_TURNS = _configured_max_unresolved()
 
-# Must match the fallback sentence in app/prompts/support_prompt.txt.
 NO_INFO_PHRASE = "I don't have enough information"
 
 CLARIFY_MESSAGE = (
@@ -73,9 +46,6 @@ ALREADY_ESCALATED_MESSAGE = (
     "They'll reply here soon. Meanwhile, feel free to ask me anything else."
 )
 
-# ---------------------------------------------------------------------------
-# Explicit requests for a human
-# ---------------------------------------------------------------------------
 
 _HUMAN_PATTERNS = [
     r"\b(talk|speak|chat|connect|transfer)\w*\s+(me\s+)?(to|with)\s+"
@@ -94,10 +64,6 @@ def wants_human(message: str) -> bool:
     return bool(_HUMAN_RE.search(message or ""))
 
 
-# ---------------------------------------------------------------------------
-# Small talk
-# ---------------------------------------------------------------------------
-
 _GREETING_RE = re.compile(
     r"^(hi+|hello+|hey+|hiya|yo|good\s+(morning|afternoon|evening)|"
     r"greetings)(\s+(there|team|bot|claude|everyone))?$",
@@ -109,8 +75,9 @@ _THANKS_RE = re.compile(
     r"(\s+(thanks|thank\s+you))?$",
     re.IGNORECASE,
 )
-_BYE_RE = re.compile(r"^(bye|goodbye|see\s+you|see\s+ya|cya)(\s+later)?$",
-                     re.IGNORECASE)
+_BYE_RE = re.compile(
+    r"^(bye|goodbye|see\s+you|see\s+ya|cya)(\s+later)?$", re.IGNORECASE
+)
 
 
 def _clean(message: str) -> str:
@@ -119,8 +86,6 @@ def _clean(message: str) -> str:
 
 
 def small_talk_reply(message: str) -> str | None:
-    """Returns a canned reply for pure small talk, else None."""
-
     text = _clean(message)
 
     if _GREETING_RE.match(text):
@@ -135,13 +100,7 @@ def small_talk_reply(message: str) -> str | None:
     return None
 
 
-# ---------------------------------------------------------------------------
-# Unresolved-turn tracking
-# ---------------------------------------------------------------------------
-
 def is_unresolved_reply(ai_message: str | None) -> bool:
-    """Was this bot reply a 'couldn't help' reply?"""
-
     if not ai_message:
         return False
 
@@ -152,11 +111,6 @@ def is_unresolved_reply(ai_message: str | None) -> bool:
 
 
 def count_trailing_unresolved(recent_ai_messages: list[str]) -> int:
-    """
-    recent_ai_messages: bot replies, oldest first.
-    Returns how many of the most recent ones in a row were unresolved.
-    """
-
     count = 0
 
     for message in reversed(recent_ai_messages):
@@ -167,21 +121,11 @@ def count_trailing_unresolved(recent_ai_messages: list[str]) -> int:
     return count
 
 
-# ---------------------------------------------------------------------------
-# Decision
-# ---------------------------------------------------------------------------
-
 def decide(
     message: str,
     low_confidence: bool,
     previous_unresolved: int,
 ) -> Action:
-    """
-    message:             the user's message
-    low_confidence:      ConfidenceService.should_escalate(score)
-    previous_unresolved: count_trailing_unresolved(previous bot replies)
-    """
-
     if wants_human(message):
         return Action.ESCALATE
 
@@ -200,12 +144,6 @@ def should_escalate_after_answer(
     answer: str,
     previous_unresolved: int,
 ) -> bool:
-    """
-    The retrieval looked fine but the LLM still said it doesn't know.
-    Treat that as an unresolved turn too.
-    """
-
     return (
-        is_unresolved_reply(answer)
-        and previous_unresolved + 1 >= MAX_UNRESOLVED_TURNS
+        is_unresolved_reply(answer) and previous_unresolved + 1 >= MAX_UNRESOLVED_TURNS
     )

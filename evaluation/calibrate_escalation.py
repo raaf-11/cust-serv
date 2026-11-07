@@ -1,21 +1,3 @@
-"""
-Escalation calibration — retrieval only, no LLM calls, runs in ~30s.
-
-Runs three groups of questions through the real retrieval pipeline and
-prints the confidence each one gets, with the OLD and NEW formulas:
-
-  answerable   golden_dataset.json questions        -> should NOT escalate
-  typos        same questions with a typo injected   -> should NOT escalate
-  off-topic    things the KB can't answer            -> should be LOW
-
-Usage (from the project root, with Qdrant + Elasticsearch running):
-
-    python -m evaluation.calibrate_escalation
-
-If any answerable/typo question is flagged LOW, or an off-topic one is not,
-the script suggests a CONFIDENCE_THRESHOLD to put in your .env.
-"""
-
 import json
 import re
 from pathlib import Path
@@ -45,8 +27,6 @@ OFF_TOPIC = [
 
 
 def legacy_confidence(documents: list[dict]) -> float:
-    """The original formula, for side-by-side comparison."""
-
     if not documents:
         return 0.0
 
@@ -56,19 +36,19 @@ def legacy_confidence(documents: list[dict]) -> float:
 
     gap = rerank[0] - rerank[1] if len(rerank) > 1 else 0.0
     gap_score = min(gap / 2.0, 1.0)
-
     top_source = documents[0].get("document_name")
-    agreement = sum(d.get("document_name") == top_source for d in documents) / len(documents)
+    agreement = sum(d.get("document_name") == top_source for d in documents) / len(
+        documents
+    )
 
-    vectors = [d["vector_score"] for d in documents if d.get("vector_score") is not None]
+    vectors = [
+        d["vector_score"] for d in documents if d.get("vector_score") is not None
+    ]
     vector = max(0.0, min(max(vectors), 1.0)) if vectors else 0.0
-
     return round(0.5 * vector + 0.3 * agreement + 0.2 * gap_score, 4)
 
 
 def inject_typo(question: str) -> str:
-    """Drop one interior letter from the longest word (deterministic)."""
-
     words = re.findall(r"[A-Za-z]+", question)
     longest = max(words, key=len)
 
@@ -76,7 +56,7 @@ def inject_typo(question: str) -> str:
         return question
 
     middle = len(longest) // 2
-    typo = longest[:middle] + longest[middle + 1:]
+    typo = longest[:middle] + longest[middle + 1 :]
     return question.replace(longest, typo, 1)
 
 
@@ -100,20 +80,22 @@ def main() -> None:
 
     groups = {
         "answerable": [item["question"] for item in dataset],
-        "typos": [inject_typo(item["question"]) for item in dataset] + HAND_WRITTEN_TYPOS,
+        "typos": [inject_typo(item["question"]) for item in dataset]
+        + HAND_WRITTEN_TYPOS,
         "off-topic": OFF_TOPIC,
     }
 
     threshold = confidence_service.threshold
     rows = {name: [score(q) for q in qs] for name, qs in groups.items()}
-
     print()
     print(f"NEW threshold = {threshold}   (old formula used 0.40)")
     print("=" * 110)
 
     for name, results in rows.items():
         print(f"\n{name.upper()}")
-        print(f"{'old':>6} {'new':>6} {'rerank':>7}  {'flag':<5} question  [-> corrected query]")
+        print(
+            f"{'old':>6} {'new':>6} {'rerank':>7}  {'flag':<5} question  [-> corrected query]"
+        )
 
         for r in results:
             low = r["new"] < threshold
@@ -122,7 +104,8 @@ def main() -> None:
             mark = "" if low == expected_low else "  <-- WRONG"
             corrected = (
                 f"  [-> {r['search_query']}]"
-                if r["search_query"] != r["question"] else ""
+                if r["search_query"] != r["question"]
+                else ""
             )
             print(
                 f"{r['old']:>6.2f} {r['new']:>6.2f} {r['top_rerank']:>7} "
@@ -131,24 +114,27 @@ def main() -> None:
 
     good = [r["new"] for r in rows["answerable"] + rows["typos"]]
     bad = [r["new"] for r in rows["off-topic"]]
-
     print("\n" + "=" * 110)
     print(f"Lowest answerable/typo confidence : {min(good):.3f}")
     print(f"Highest off-topic confidence      : {max(bad):.3f}")
 
     if max(bad) < min(good):
         suggestion = round((max(bad) + min(good)) / 2, 2)
-        print(f"Clean separation. Any threshold between them works; "
-              f"midpoint = {suggestion}")
+        print(
+            f"Clean separation. Any threshold between them works; "
+            f"midpoint = {suggestion}"
+        )
         if not (max(bad) < threshold < min(good)):
             print(f"-> Set CONFIDENCE_THRESHOLD={suggestion} in your .env")
         else:
             print("-> Current threshold is fine.")
     else:
-        print("Groups overlap — look at the WRONG rows above. Off-topic "
-              "questions with high scores usually mean the KB genuinely "
-              "has a loosely related chunk; that's OK because the LLM will "
-              "say it doesn't know, and the next miss escalates.")
+        print(
+            "Groups overlap — look at the WRONG rows above. Off-topic "
+            "questions with high scores usually mean the KB genuinely "
+            "has a loosely related chunk; that's OK because the LLM will "
+            "say it doesn't know, and the next miss escalates."
+        )
 
 
 if __name__ == "__main__":

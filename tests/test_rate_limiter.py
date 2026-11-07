@@ -1,9 +1,3 @@
-"""
-Unit tests for both rate limiters. No services, no network:
-
-    pytest tests/test_rate_limiter.py -q
-"""
-
 import asyncio
 
 import pytest
@@ -25,10 +19,6 @@ class FakeClock:
         self.t += s
 
 
-# ---------------------------------------------------------------------------
-# Inbound sliding window
-# ---------------------------------------------------------------------------
-
 def test_allows_up_to_limit_then_blocks():
     clock = FakeClock()
     b = InMemoryBackend(clock=clock)
@@ -45,14 +35,12 @@ def test_window_slides():
     clock.advance(30)
     b.hit("k", 2, 60)
     assert not b.hit("k", 2, 60).allowed
-    clock.advance(30.1)  # first hit has left the window, second hasn't
+    clock.advance(30.1)
     assert b.hit("k", 2, 60).allowed
     assert not b.hit("k", 2, 60).allowed
 
 
 def test_no_fixed_window_boundary_burst():
-    # A fixed "per calendar minute" counter would allow 2x the limit across
-    # a minute boundary. The sliding window must not.
     clock = FakeClock()
     b = InMemoryBackend(clock=clock)
     clock.advance(59)
@@ -91,13 +79,9 @@ def test_tightest_of_several_rules_wins(monkeypatch):
         rate_limiter._enforce("k", rules, Response())
 
 
-# ---------------------------------------------------------------------------
-# Outbound LLM throttle
-# ---------------------------------------------------------------------------
-
 def test_token_bucket_wait_time():
     clock = FakeClock()
-    b = TokenBucket(60, 60, clock)  # 1 token / second
+    b = TokenBucket(60, 60, clock)
     b.consume(60)
     assert b.wait_time(10) == pytest.approx(10)
     clock.advance(4)
@@ -106,7 +90,7 @@ def test_token_bucket_wait_time():
 
 def test_oversized_request_still_runs():
     b = TokenBucket(100, 60, FakeClock())
-    assert b.wait_time(10_000) == 0  # capped at capacity, never deadlocks
+    assert b.wait_time(10_000) == 0
 
 
 def _limiter(rpm, tpm):
@@ -128,7 +112,6 @@ def test_llm_limiter_queues_instead_of_failing_on_rpm():
             await lim.acquire(10)
 
     asyncio.run(go())
-    # 3rd request waits for one request-token to refill: 60s / 2 = 30s
     assert sum(slept) == pytest.approx(30)
 
 
@@ -137,7 +120,7 @@ def test_llm_limiter_respects_tpm():
 
     async def go():
         await lim.acquire(5000)
-        await lim.acquire(3000)  # needs 2000 more tokens -> 20s at 100 tok/s
+        await lim.acquire(3000)
 
     asyncio.run(go())
     assert sum(slept) == pytest.approx(20)
@@ -148,7 +131,7 @@ def test_record_actual_refunds_overestimate():
 
     async def go():
         await lim.acquire(5000)
-        lim.record_actual(5000, 1000)  # really used 1000
+        lim.record_actual(5000, 1000)
         await lim.acquire(4000)
 
     asyncio.run(go())

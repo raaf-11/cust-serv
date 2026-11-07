@@ -63,7 +63,32 @@ The platform also supports human-in-the-loop escalation, ticket management, conv
                                   └──────────────┘
 
 
+## Running it
 
+**Everything in Docker** (needs a `.env` with `OPENROUTER_API_KEY` and `SECRET_KEY`):
+
+```bash
+docker compose up -d --build
+```
+
+- App: http://localhost:3000 (nginx serves the React build and proxies `/api` to the backend)
+- API docs: http://localhost:8000/docs
+- First run only, load the knowledge base: log in as an **employee** at
+  http://localhost:8000/docs (Authorize button), then run `POST /ingestion/load-test-data`.
+  It requires the employee role; it's safe to re-run (each file's chunks are replaced, not duplicated).
+- Only the frontend (port 3000) is reachable from other machines. The backend
+  (8000) and the databases (5433, 6333, 9200) are bound to `127.0.0.1`.
+
+The backend image installs CPU-only torch and bakes in the embedding and reranker
+models, so the first build takes a few minutes and the image is ~2.5 GB.
+
+**Local development** (hot reload): start only the databases, then run the app as usual:
+
+```bash
+docker compose up -d postgres qdrant elasticsearch
+uvicorn app.main:app --reload        # from the venv
+cd frontend && npm run dev           # http://localhost:5173
+```
 
 
 ## Current Development

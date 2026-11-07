@@ -1,20 +1,8 @@
-"""
-LLM-as-judge for open-ended questions that don't have a single exact
-expected answer (e.g. "my laptop is slow, what should I do?").
-
-Deliberately scores against hand-written `reference_notes` pulled from the
-source PDFs — NOT against the retrieved context — so a bad retrieval can't
-grade itself as correct just because the answer matches what was retrieved.
-"""
-
 import json
 
 from app.core.config import settings
 from app.services.llm_service import post_chat_completion
 
-# Use a different model than the one being graded when you can (e.g.
-# JUDGE_MODEL_NAME=llama-3.3-70b-versatile in .env) so the judge doesn't
-# share the answer model's blind spots.
 JUDGE_MODEL_NAME = settings.JUDGE_MODEL_NAME or settings.MODEL_NAME
 
 JUDGE_SYSTEM_PROMPT = """You are a strict evaluator for a customer support AI.
@@ -38,13 +26,6 @@ async def judge_answer(
     reference_notes: str,
     generated_answer: str,
 ) -> dict:
-    """
-    Calls the same LLM backend the app uses (Groq, per JUDGE_MODEL_NAME or
-    settings.MODEL_NAME) to score a generated answer. Returns {"score": int | None, "reasoning": str}.
-    score is None if the call failed or the response couldn't be parsed —
-    callers should treat None as "unscored", not as a failing score.
-    """
-
     user_prompt = (
         f"Question: {question}\n\n"
         f"Reference facts/steps a correct answer should reflect:\n"
@@ -61,18 +42,13 @@ async def judge_answer(
         "temperature": 0.0,
     }
 
-    # gpt-oss models "think" before answering, and those hidden tokens
-    # count towards Groq's tokens-per-minute limit. Keep it short.
     if "gpt-oss" in JUDGE_MODEL_NAME.lower():
         payload["reasoning_effort"] = "low"
 
     try:
-        # Same throttle + 429 retry as the app, so the judge and the
-        # pipeline share one Groq budget instead of fighting over it.
         data = await post_chat_completion(payload)
         raw = data["choices"][0]["message"]["content"].strip()
 
-        # Some models wrap JSON in a markdown fence despite instructions.
         if raw.startswith("```"):
             raw = raw.strip("`")
             if "\n" in raw:

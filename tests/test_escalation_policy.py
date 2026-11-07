@@ -1,8 +1,3 @@
-"""
-Fast unit tests for the escalation logic. No Qdrant, Elasticsearch or LLM
-needed:  pytest tests/test_escalation_policy.py -q
-"""
-
 from app.services import escalation_policy as policy
 from app.services.escalation_policy import Action
 from app.services.confidence_service import ConfidenceService
@@ -16,10 +11,6 @@ KB_TEXT = [
     "Mobile phones carry a 1 year warranty.",
 ]
 
-
-# ---------------------------------------------------------------------------
-# Typo correction
-# ---------------------------------------------------------------------------
 
 def make_normalizer():
     return QueryNormalizer(text_loader=lambda: KB_TEXT)
@@ -39,8 +30,13 @@ def test_common_typos_are_corrected():
 
 def test_correct_and_everyday_words_are_untouched():
     n = make_normalizer()
-    for q in ["hello there", "thanks", "My laptop is running slowly",
-              "what is the weather today", "I want to talk to a human"]:
+    for q in [
+        "hello there",
+        "thanks",
+        "My laptop is running slowly",
+        "what is the weather today",
+        "I want to talk to a human",
+    ]:
         assert n.normalize(q) == q
 
 
@@ -58,16 +54,46 @@ def test_normalizer_is_deterministic():
     assert len(results) == 1
 
 
-# ---------------------------------------------------------------------------
-# Confidence
-# ---------------------------------------------------------------------------
+KB_WITH_LOOKALIKES = KB_TEXT + ["Daily intake form. Black cover. Pad holder."]
+ENGLISH = ["take", "paid", "back", "money", "laptop", "warranty"]
+
+
+def test_real_english_words_are_not_corrected():
+    n = QueryNormalizer(
+        text_loader=lambda: KB_WITH_LOOKALIKES,
+        english_words_loader=lambda: ENGLISH,
+    )
+    q = "I paid cash. How long does it take to get my money back?"
+    assert n.normalize(q) == q
+
+
+def test_typos_are_still_corrected_with_english_words():
+    n = QueryNormalizer(
+        text_loader=lambda: KB_WITH_LOOKALIKES,
+        english_words_loader=lambda: ENGLISH,
+    )
+    assert n.normalize("warranty for laptp?") == "warranty for laptop?"
+    assert n.normalize("pasword reset") == "password reset"
+
+
+def test_without_english_words_the_old_false_correction_happens():
+    n = QueryNormalizer(text_loader=lambda: KB_WITH_LOOKALIKES)
+    assert n.normalize("my money back") == "my money black"
+
+
+def test_english_words_loader_failure_falls_back_to_kb_only():
+    def broken():
+        raise OSError("tokenizer missing")
+
+    n = QueryNormalizer(text_loader=lambda: KB_TEXT, english_words_loader=broken)
+    assert n.normalize("warranty for laptp?") == "warranty for laptop?"
+
 
 def doc(rerank, vector, name="Warranty_Policy.pdf"):
     return {"rerank_score": rerank, "vector_score": vector, "document_name": name}
 
 
 def test_good_match_is_confident_even_with_mixed_sources_and_no_gap():
-    # Old formula punished this (different PDFs, top two chunks tied).
     svc = ConfidenceService(threshold=0.25)
     docs = [
         doc(6.0, 0.55, "Warranty_Policy.pdf"),
@@ -90,22 +116,23 @@ def test_no_documents_is_low():
     assert svc.should_escalate(svc.calculate_confidence([]))
 
 
-# ---------------------------------------------------------------------------
-# Policy
-# ---------------------------------------------------------------------------
-
 def test_single_low_confidence_message_asks_to_clarify_not_escalate():
-    assert policy.decide("blah", low_confidence=True, previous_unresolved=0) == Action.CLARIFY
+    assert (
+        policy.decide("blah", low_confidence=True, previous_unresolved=0)
+        == Action.CLARIFY
+    )
 
 
 def test_second_miss_in_a_row_escalates():
-    assert policy.decide("blah", low_confidence=True, previous_unresolved=1) == Action.ESCALATE
+    assert (
+        policy.decide("blah", low_confidence=True, previous_unresolved=1)
+        == Action.ESCALATE
+    )
 
 
 def test_good_answer_resets_the_streak():
     history = [policy.CLARIFY_MESSAGE, "The laptop warranty is 2 years."]
     assert policy.count_trailing_unresolved(history) == 0
-
     history = ["The laptop warranty is 2 years.", policy.CLARIFY_MESSAGE]
     assert policy.count_trailing_unresolved(history) == 1
 
@@ -122,23 +149,43 @@ def test_llm_dont_know_counts_as_unresolved():
 
 
 def test_explicit_human_request_escalates_immediately():
-    for msg in ["I want to talk to a human", "can I speak with an agent please",
-                "connect me to a real person", "please raise a ticket",
-                "escalate this"]:
-        assert policy.decide(msg, low_confidence=False, previous_unresolved=0) == Action.ESCALATE, msg
+    for msg in [
+        "I want to talk to a human",
+        "can I speak with an agent please",
+        "connect me to a real person",
+        "please raise a ticket",
+        "escalate this",
+    ]:
+        assert (
+            policy.decide(msg, low_confidence=False, previous_unresolved=0)
+            == Action.ESCALATE
+        ), msg
 
 
 def test_normal_questions_are_not_human_requests():
-    for msg in ["My laptop is running slowly", "how long is the warranty",
-                "what does the support team do on weekends?",
-                "is the agent warranty transferable"]:
+    for msg in [
+        "My laptop is running slowly",
+        "how long is the warranty",
+        "what does the support team do on weekends?",
+        "is the agent warranty transferable",
+    ]:
         assert not policy.wants_human(msg), msg
 
 
 def test_small_talk_never_escalates():
-    for msg in ["hi", "Hello!", "hey there", "thanks", "thank you so much",
-                "ok thanks", "bye"]:
-        assert policy.decide(msg, low_confidence=True, previous_unresolved=5) == Action.SMALL_TALK, msg
+    for msg in [
+        "hi",
+        "Hello!",
+        "hey there",
+        "thanks",
+        "thank you so much",
+        "ok thanks",
+        "bye",
+    ]:
+        assert (
+            policy.decide(msg, low_confidence=True, previous_unresolved=5)
+            == Action.SMALL_TALK
+        ), msg
 
 
 def test_greeting_plus_question_is_not_small_talk():
@@ -146,9 +193,10 @@ def test_greeting_plus_question_is_not_small_talk():
 
 
 def test_demo_scenario_laptp_does_not_escalate():
-    """The embarrassing demo case, end to end through the pure logic."""
     n = make_normalizer()
     query = n.normalize("How long is the standard warranty for laptp?")
     assert "laptop" in query
-    # Even if retrieval were weak, the first miss only asks to rephrase.
-    assert policy.decide(query, low_confidence=True, previous_unresolved=0) != Action.ESCALATE
+    assert (
+        policy.decide(query, low_confidence=True, previous_unresolved=0)
+        != Action.ESCALATE
+    )

@@ -3,12 +3,9 @@ from app.core.config import settings
 
 
 class ElasticsearchService:
-
     def __init__(self):
-       
         self.client = Elasticsearch(settings.ELASTICSEARCH_URL)
         self.index_name = settings.ELASTICSEARCH_INDEX
-
         self.create_index()
 
     def create_index(self):
@@ -23,16 +20,12 @@ class ElasticsearchService:
                         "text": {"type": "text"},
                         "document_name": {"type": "keyword"},
                         "chunk_index": {"type": "integer"},
-                        "source_type": {"type": "keyword"}
+                        "source_type": {"type": "keyword"},
                     }
                 }
             }
 
-            self.client.indices.create(
-                index=self.index_name,
-                body=mapping
-            )
-
+            self.client.indices.create(index=self.index_name, body=mapping)
             print(f"Created Elasticsearch index: {self.index_name}")
 
         except Exception as e:
@@ -40,85 +33,41 @@ class ElasticsearchService:
             raise
 
     def index_chunk(self, payload: dict):
-        """
-        Index a single chunk.
-        """
-
-        self.client.index(
-            index=self.index_name,
-            id=payload["id"],
-            document=payload
-        )
+        self.client.index(index=self.index_name, id=payload["id"], document=payload)
 
     def index_chunks(self, payloads: list[dict]):
-        """
-        Index multiple chunks.
-        """
-
         operations = []
 
         for payload in payloads:
-
             operations.append(
-                {
-                    "index": {
-                        "_index": self.index_name,
-                        "_id": payload["id"]
-                    }
-                }
+                {"index": {"_index": self.index_name, "_id": payload["id"]}}
             )
 
             operations.append(payload)
 
-        self.client.bulk(
-            operations=operations,
-            refresh=True
-        )
+        self.client.bulk(operations=operations, refresh=True)
 
-    def keyword_search(
-        self,
-        query: str,
-        limit: int = 5
-    ) -> list[dict]:
-        """
-        Perform BM25 keyword search.
-        """
-
+    def keyword_search(self, query: str, limit: int = 5) -> list[dict]:
         response = self.client.search(
             index=self.index_name,
             size=limit,
             query={
                 "match": {
-                    "text": {
-                        "query": query,
-                        # Tolerate small typos ("laptp" still matches
-                        # "laptop"). AUTO = 0 edits for 1-2 chars,
-                        # 1 edit for 3-5 chars, 2 edits for longer words.
-                        "fuzziness": "AUTO",
-                        "prefix_length": 1
-                    }
+                    "text": {"query": query, "fuzziness": "AUTO", "prefix_length": 1}
                 }
-            }
+            },
         )
 
         results = []
 
         for hit in response["hits"]["hits"]:
-
             payload = hit["_source"].copy()
-
             payload["bm25_score"] = hit["_score"]
-
             results.append(payload)
 
         return results
 
     def get_all_texts(self) -> list[str]:
-        """
-        Returns the text of every indexed chunk. Used to build the
-        vocabulary for typo correction (see query_normalizer.py).
-        """
-
         from elasticsearch.helpers import scan
 
         return [
@@ -127,30 +76,35 @@ class ElasticsearchService:
                 self.client,
                 index=self.index_name,
                 query={"query": {"match_all": {}}},
-                _source=["text"]
+                _source=["text"],
             )
         ]
 
+    def delete_document(self, document_name: str):
+        self.client.delete_by_query(
+            index=self.index_name,
+            query={
+                "bool": {
+                    "should": [
+                        {"term": {"document_name": document_name}},
+                        {"term": {"document_name.keyword": document_name}},
+                    ]
+                }
+            },
+            refresh=True,
+            conflicts="proceed",
+        )
+
     def delete_index(self):
-
         if self.client.indices.exists(index=self.index_name):
-
-            self.client.indices.delete(
-                index=self.index_name
-            )
-
+            self.client.indices.delete(index=self.index_name)
             print(f"Deleted index: {self.index_name}")
 
     def get_document_count(self):
-
-        response = self.client.count(
-            index=self.index_name
-        )
-
+        response = self.client.count(index=self.index_name)
         return response["count"]
 
     def health_check(self):
-
         return self.client.ping()
 
 

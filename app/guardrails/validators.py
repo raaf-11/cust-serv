@@ -1,6 +1,6 @@
 from app.guardrails.exceptions import GuardrailViolation, GuardrailViolationType
 
-MAX_INPUT_LENGTH = 2000  # characters — tune to your token budget
+MAX_INPUT_LENGTH = 2000
 
 
 def validate_not_empty(text: str) -> None:

@@ -42,7 +42,6 @@ export default function Chat() {
         if (!session) return;
         try {
             const data = await getMessages(session.id);
-            // Ignore late responses for a chat the user has left.
             if (selectedRef.current?.id === session.id) {
                 setMessages(data);
             }
@@ -58,8 +57,6 @@ export default function Chat() {
         loadMessages(session);
     }, [loadMessages, selectSession]);
 
-    // Refresh the chat list. Only picks a chat when none is open, so the
-    // user is never moved away from the conversation they're in.
     const loadSessions = useCallback(async () => {
         try {
             const data = await getSessions();
@@ -78,12 +75,10 @@ export default function Chat() {
     }, [openSession, selectSession]);
 
     useEffect(() => {
-        // Initial fetch; state is set after the request resolves.
         // eslint-disable-next-line react-hooks/set-state-in-effect
         loadSessions();
     }, [loadSessions]);
 
-    // Poll for new messages (e.g. replies from a support agent).
     useEffect(() => {
         if (!selectedSession) return;
         const id = setInterval(() => loadMessages(selectedRef.current), POLL_MS);
@@ -130,6 +125,8 @@ export default function Chat() {
             setToast(
                 err.response?.status === 429
                     ? err.response.data?.detail || "You're sending messages too quickly. Please wait a moment."
+                    : err.response?.status === 400 && typeof err.response.data?.detail === "string"
+                    ? err.response.data.detail
                     : "Your message wasn't sent. Check your connection and try again."
             );
         } finally {

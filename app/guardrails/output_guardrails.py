@@ -4,45 +4,47 @@ from typing import List
 import numpy as np
 
 from app.guardrails.exceptions import GuardrailViolation, GuardrailViolationType
-from app.services.embedding_service import embedding_service
+
+_NUM = r"\d+(?:[.,]\d+)?"
+_TIME_UNIT = r"(minute|hour|day|week|month|year)s?\b"
+_QUALIFIER = r"(?:\s+(?:business|working|calendar|full|consecutive))?"
+_CURRENCY = r"(?:₹|\$|\brs\.?)"
+
+_TIME_RE = re.compile(rf"(?<![\d.,])({_NUM}){_QUALIFIER}\s*{_TIME_UNIT}", re.IGNORECASE)
+_PERCENT_RE = re.compile(rf"(?<![\d.,])({_NUM})\s*(?:%|percent\b)", re.IGNORECASE)
+_MONEY_RE = re.compile(rf"{_CURRENCY}\s*({_NUM})(?![\d])", re.IGNORECASE)
+
+_NOT_DIGIT_AFTER = r"(?![\d]|[.,]\d)"
 
 
-# -----------------------------
-# Numeric grounding
-# -----------------------------
-# Catches fabricated/injected numeric claims (dates, %, currency) by
-# checking whether the exact number in the response actually appears
-# in the retrieved context. Cheap, deterministic, no model call needed.
+def _claims(text: str) -> list[tuple[str, str, re.Pattern]]:
+    claims = []
 
-_NUMBER_ANCHOR_RE = re.compile(
-    r"\b\d+\s*(days?|months?|years?|hours?|%|percent|₹|\$|rs\.?)\b",
-    re.IGNORECASE,
-)
+    for m in _TIME_RE.finditer(text):
+        num, unit = re.escape(m.group(1)), m.group(2).lower()
+        pattern = re.compile(
+            rf"(?<![\d.,]){num}{_NOT_DIGIT_AFTER}"
+            rf"(?:\s*(?:-|–|to)\s*{_NUM})?(?:\s+[a-z]+){{0,2}}\s*{unit}s?\b",
+            re.IGNORECASE,
+        )
+        claims.append((m.group(0), m.group(1), pattern))
 
+    for m in _PERCENT_RE.finditer(text):
+        num = re.escape(m.group(1))
+        pattern = re.compile(rf"(?<![\d.,]){num}\s*(?:%|percent\b)", re.IGNORECASE)
+        claims.append((m.group(0), m.group(1), pattern))
 
-def _extract_anchors(text: str) -> list[str]:
-    return [m.group(0).lower() for m in _NUMBER_ANCHOR_RE.finditer(text)]
+    for m in _MONEY_RE.finditer(text):
+        num = re.escape(m.group(1))
+        pattern = re.compile(rf"{_CURRENCY}\s*{num}{_NOT_DIGIT_AFTER}", re.IGNORECASE)
+        claims.append((m.group(0), m.group(1), pattern))
+
+    return claims
 
 
 def validate_grounding(response: str, context: str) -> None:
-    """
-    Verifies numeric claims in the response (e.g. "90 days", "5%")
-    are traceable to the retrieved context. Testing proved the LLM
-    will state an injected or invented figure as fact when told to
-    by text that merely looks authoritative — this check doesn't
-    trust the model's compliance with prompt instructions, it
-    verifies the output mechanically after the fact.
-    """
-    anchors = _extract_anchors(response)
-    context_lower = context.lower()
-
-    for anchor in anchors:
-        number_match = re.search(r"\d+", anchor)
-        if not number_match:
-            continue
-        number_part = number_match.group(0)
-
-        if number_part not in context_lower:
+    for anchor, number, pattern in _claims(response):
+        if not pattern.search(context):
             raise GuardrailViolation(
                 violation_type=GuardrailViolationType.UNGROUNDED_RESPONSE,
                 user_message=(
@@ -50,25 +52,14 @@ def validate_grounding(response: str, context: str) -> None:
                     "connect you with a team member who can verify."
                 ),
                 detail=(
-                    f"Unsupported numeric anchor '{anchor}'. "
-                    f"Context did not contain '{number_part}'."
+                    f"Unsupported figure '{anchor}': context has no "
+                    f"'{number}' with the same unit."
                 ),
             )
 
 
-# -----------------------------------
-# Semantic grounding
-# -----------------------------------
-# Catches non-numeric fabricated claims (e.g. "we ship internationally
-# with no customs fees") that the numeric check can't see, since there's
-# no digit to anchor on. Uses embedding_service — the same service
-# VectorRetriever already uses for retrieval — so no new dependency or
-# duplicate model load. Cosine similarity between each response sentence
-# and the retrieved context stands in for "is this claim traceable to
-# what we actually retrieved."
-
-_MIN_SENTENCE_LEN = 15  # skip short filler like "Sure!" or "Let me know."
-SIMILARITY_THRESHOLD = 0.45  # starting value — needs calibration, see note below
+_MIN_SENTENCE_LEN = 15
+SIMILARITY_THRESHOLD = 0.45
 
 
 def _cosine_similarity(vec_a: list[float], vec_b: list[float]) -> float:
@@ -81,32 +72,25 @@ def _cosine_similarity(vec_a: list[float], vec_b: list[float]) -> float:
 
 
 def _split_sentences(text: str) -> List[str]:
-    # Naive splitter — good enough for support-bot-length responses.
-    # Avoids pulling in a full NLP tokenizer for marginal accuracy gain.
     sentences = re.split(r"(?<=[.!?])\s+", text.strip())
     return [s.strip() for s in sentences if len(s.strip()) >= _MIN_SENTENCE_LEN]
 
 
 def validate_semantic_grounding(response: str, context: str) -> None:
-    """
-    Soft-fails deliberately: semantic similarity is fuzzier than exact
-    numeric matching, so false positives are more likely. The fallback
-    routes to human handoff rather than a hard refusal, so a wrongly
-    flagged correct answer costs the customer a slight delay, not a
-    dead end.
-    """
     if not context.strip():
-        return  # nothing retrieved — not this check's job to handle
+        return
 
     sentences = _split_sentences(response)
     if not sentences:
         return
 
+    from app.services.embedding_service import embedding_service
+
     context_vector = embedding_service.embed(context)
 
     for sentence in sentences:
         if not sentence.strip():
-            continue  # defensive — embed() raises on empty/whitespace text
+            continue
 
         sentence_vector = embedding_service.embed(sentence)
         score = _cosine_similarity(sentence_vector, context_vector)

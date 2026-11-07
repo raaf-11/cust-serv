@@ -1,6 +1,7 @@
 import ReactMarkdown from "react-markdown";
 
 import { clockTime } from "../../utils/time";
+import { fixRupeeSymbol } from "../../utils/text";
 
 const LABELS = {
     user: "You",
@@ -31,7 +32,7 @@ export default function MessageBubble({
                     <p className="bubble-text">{message}</p>
                 ) : (
                     <div className="markdown">
-                        <ReactMarkdown>{message}</ReactMarkdown>
+                        <ReactMarkdown>{fixRupeeSymbol(message)}</ReactMarkdown>
                     </div>
                 )}
             </div>

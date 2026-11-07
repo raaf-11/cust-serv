@@ -6,6 +6,7 @@ import { useAuth } from "../context/AuthContext";
 import ChatInput from "../components/chat/ChatInput";
 import { BackIcon, CheckIcon, SignOutIcon } from "../components/Icons";
 import { clockTime, timeAgo } from "../utils/time";
+import { fixRupeeSymbol } from "../utils/text";
 import {
     getOpenTickets,
     getMyTickets,
@@ -19,7 +20,6 @@ import "./employee.css";
 
 const POLL_MS = 3000;
 
-// Turn the backend's ticket subjects into something an agent can scan.
 const REASONS = {
     "AI Support Escalation": "Assistant couldn't answer",
     "Customer requested a support agent": "Asked for a person",
@@ -68,7 +68,6 @@ export default function EmployeeDashboard() {
             setOpenTickets(open);
             setMyTickets(mine);
 
-            // Keep the open ticket's status current (e.g. after accepting).
             const current = selectedRef.current;
             if (current) {
                 const fresh = [...mine, ...open].find((t) => t.id === current.id);
@@ -95,7 +94,6 @@ export default function EmployeeDashboard() {
     }, []);
 
     useEffect(() => {
-        // Initial fetch; state is set after the request resolves.
         // eslint-disable-next-line react-hooks/set-state-in-effect
         loadDashboard();
         const id = setInterval(loadDashboard, POLL_MS);
@@ -213,7 +211,6 @@ export default function EmployeeDashboard() {
 
             <div className="emp-body">
 
-                {/* ---------- Ticket queue ---------- */}
                 <aside className="emp-queue scroll" aria-label="Tickets">
 
                     <section className="queue-section">
@@ -274,7 +271,6 @@ export default function EmployeeDashboard() {
                     </section>
                 </aside>
 
-                {/* ---------- Conversation ---------- */}
                 <main className="emp-conversation grid-paper">
                     {!selected ? (
                         <div className="emp-placeholder">
@@ -344,7 +340,7 @@ export default function EmployeeDashboard() {
                                                 <div className={`bubble ${role.key}`}>
                                                     {role.key === "assistant" ? (
                                                         <div className="markdown">
-                                                            <ReactMarkdown>{m.content}</ReactMarkdown>
+                                                            <ReactMarkdown>{fixRupeeSymbol(m.content)}</ReactMarkdown>
                                                         </div>
                                                     ) : (
                                                         <p className="bubble-text">{m.content}</p>

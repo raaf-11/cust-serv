@@ -1,5 +1,3 @@
-// The backend stores times in UTC but sends them without a "Z",
-// so the browser would read them as local time (5h30m off in India).
 export function parseServerDate(value) {
     if (!value) return null;
     const text = String(value);

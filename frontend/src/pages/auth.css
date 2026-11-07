@@ -24,7 +24,6 @@
     padding: 8px 28px 28px;
 }
 
-/* Two-option switch at the top of the card */
 .auth-tabs {
     display: flex;
     gap: 20px;

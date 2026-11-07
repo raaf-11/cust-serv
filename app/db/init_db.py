@@ -4,6 +4,4 @@ from app.models.user import User
 from app.models.conversation import Conversation
 from app.models.chat_session import ChatSession
 
-Base.metadata.create_all(
-    bind=engine
-)
+Base.metadata.create_all(bind=engine)

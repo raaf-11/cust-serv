@@ -2,10 +2,8 @@ from app.core.config import settings
 
 
 class RetrievalDebugger:
-
     @staticmethod
     def print_query(query: str):
-
         if not settings.DEBUG_RETRIEVAL:
             return
 
@@ -16,7 +14,6 @@ class RetrievalDebugger:
 
     @staticmethod
     def print_vector_results(results):
-
         if not settings.DEBUG_RETRIEVAL:
             return
 
@@ -25,7 +22,6 @@ class RetrievalDebugger:
         print("=" * 80)
 
         for i, doc in enumerate(results, start=1):
-
             print(
                 f"{i}. "
                 f"{doc['document_name']} | "
@@ -35,7 +31,6 @@ class RetrievalDebugger:
 
     @staticmethod
     def print_keyword_results(results):
-
         if not settings.DEBUG_RETRIEVAL:
             return
 
@@ -44,7 +39,6 @@ class RetrievalDebugger:
         print("=" * 80)
 
         for i, doc in enumerate(results, start=1):
-
             print(
                 f"{i}. "
                 f"{doc['document_name']} | "
@@ -54,7 +48,6 @@ class RetrievalDebugger:
 
     @staticmethod
     def print_merged_results(results):
-
         if not settings.DEBUG_RETRIEVAL:
             return
 
@@ -63,7 +56,6 @@ class RetrievalDebugger:
         print("=" * 80)
 
         for i, doc in enumerate(results, start=1):
-
             print(
                 f"{i}. "
                 f"{doc['document_name']} | "
@@ -74,7 +66,6 @@ class RetrievalDebugger:
 
     @staticmethod
     def print_reranked_results(results):
-
         if not settings.DEBUG_RETRIEVAL:
             return
 
@@ -83,7 +74,6 @@ class RetrievalDebugger:
         print("=" * 80)
 
         for i, doc in enumerate(results, start=1):
-
             print(
                 f"{i}. "
                 f"{doc['document_name']} | "
@@ -93,7 +83,6 @@ class RetrievalDebugger:
 
     @staticmethod
     def print_context(context: str):
-
         if not settings.DEBUG_RETRIEVAL:
             return
 

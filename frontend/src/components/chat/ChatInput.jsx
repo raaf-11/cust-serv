@@ -3,6 +3,7 @@ import { useRef, useState } from "react";
 import { SendIcon } from "../Icons";
 
 const MAX_HEIGHT = 160;
+const MAX_LENGTH = 2000;
 
 export default function ChatInput({
     onSend,
@@ -42,6 +43,7 @@ export default function ChatInput({
                 id="chat-message"
                 ref={ref}
                 rows={1}
+                maxLength={MAX_LENGTH}
                 placeholder={placeholder}
                 value={message}
                 onChange={(e) => {
@@ -49,7 +51,6 @@ export default function ChatInput({
                     resize();
                 }}
                 onKeyDown={(e) => {
-                    // Enter sends, Shift+Enter adds a new line.
                     if (e.key === "Enter" && !e.shiftKey && !e.nativeEvent.isComposing) {
                         e.preventDefault();
                         submit();

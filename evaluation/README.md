@@ -44,9 +44,9 @@ To add a question: copy the exact sentence/table row from the PDF into
 two places, or `["fact A", "fact B"]` for multi-hop). Run
 `pytest tests/test_retrieval_metrics.py` to check the file is well formed.
 
-**Before running:** reset Qdrant + Elasticsearch and ingest once. Ingestion
-uses random ids, so ingesting twice duplicates every chunk; the report
-warns if it sees duplicates.
+**Before running:** make sure the knowledge base is ingested. Re-ingesting
+a file replaces its chunks (stable ids, old chunks deleted first), so it's
+safe to run again; the report still warns if it sees duplicates.
 
 ## Why this exists
 

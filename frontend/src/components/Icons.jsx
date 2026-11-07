@@ -1,5 +1,3 @@
-// Small stroke icons used across pages (no icon library needed).
-
 function Svg({ children, ...props }) {
     return (
         <svg

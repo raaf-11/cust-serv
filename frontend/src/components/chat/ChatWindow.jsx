@@ -14,7 +14,6 @@ export default function ChatWindow({
 }) {
     const endRef = useRef(null);
 
-    // Hide the optimistic copy once the server has stored the message.
     const last = messages[messages.length - 1];
     const showPending =
         pendingText &&

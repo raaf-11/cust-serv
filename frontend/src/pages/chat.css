@@ -1,18 +1,11 @@
 @import "../styles/conversation.css";
 
-/* =========================================================
-   Customer chat page
-   Sidebar on the left, conversation on the grid paper.
-========================================================= */
-
 .chat-page {
     position: fixed;
     inset: 0;
     display: flex;
     overflow: hidden;
 }
-
-/* ---------- Sidebar ---------- */
 
 .chat-sidebar {
     width: 272px;
@@ -180,8 +173,6 @@
     display: none;
 }
 
-/* ---------- Main ---------- */
-
 .chat-main {
     position: relative;
     flex: 1;
@@ -238,7 +229,6 @@
     min-height: 0;
 }
 
-/* Empty conversation */
 .empty-state {
     width: min(620px, 100%);
     margin: 0 auto;
@@ -282,7 +272,6 @@
     border-color: var(--green);
 }
 
-/* Composer area */
 .chat-composer {
     width: min(760px, 100%);
     margin: 0 auto;
@@ -309,8 +298,6 @@
     font-size: 14px;
     z-index: 20;
 }
-
-/* ---------- Tablet & phone: sidebar becomes a drawer ---------- */
 
 @media (max-width: 860px) {
     .chat-sidebar {
@@ -357,7 +344,6 @@
         padding: 8px 16px;
     }
 
-    /* Touch screens can't hover, so always show delete. */
     .session-delete {
         opacity: 1;
     }

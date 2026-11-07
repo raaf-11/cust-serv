@@ -1,8 +1,3 @@
-"""
-Unit tests for chunk-level retrieval metrics and the v2 golden dataset.
-No services needed:  pytest tests/test_retrieval_metrics.py -q
-"""
-
 import json
 from pathlib import Path
 
@@ -30,7 +25,6 @@ def test_normalize_handles_dashes_case_and_layout():
 
 
 def test_right_document_wrong_chunk_is_a_miss():
-    # The old doc-level metric would call this a hit: same PDF, wrong row.
     ranked = [CHUNKS[2], CHUNKS[0]]
     s = score_ranking(ranked, ["UPI / Net Banking Original account 3–5 business days"])
     assert s["hit@5"] == 0
@@ -87,8 +81,11 @@ def test_v2_dataset_is_well_formed():
 
 
 def test_ndcg_never_exceeds_one_when_fact_repeats_across_chunks():
-    # One evidence group, but the fact appears in two retrieved chunks.
-    chunks = ["the link is valid for 15 minutes", "reset link valid for 15 minutes", "other"]
+    chunks = [
+        "the link is valid for 15 minutes",
+        "reset link valid for 15 minutes",
+        "other",
+    ]
     s = score_ranking(chunks, ["valid for 15 minutes"], ks=(5,))
     assert s["ndcg@5"] == 1.0
     s = score_ranking(["other", *chunks], ["valid for 15 minutes"], ks=(5,))

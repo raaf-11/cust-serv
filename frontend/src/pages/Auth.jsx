@@ -22,7 +22,6 @@ function Auth() {
 
     const isLogin = mode === "login";
 
-    // Already signed in: skip the form.
     if (isAuthenticated && user) {
         return <Navigate to={homeFor(user.role)} replace />;
     }

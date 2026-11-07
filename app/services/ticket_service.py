@@ -4,24 +4,14 @@ from app.models.chat_session import ChatSession
 
 
 class TicketService:
-
     def create_ticket(
-        self,
-        user_id: int,
-        session_id: int,
-        subject: str,
-        description: str
+        self, user_id: int, session_id: int, subject: str, description: str
     ):
-
         db = SessionLocal()
 
-        # Verify the session belongs to the current user
         session = (
             db.query(ChatSession)
-            .filter(
-                ChatSession.id == session_id,
-                ChatSession.user_id == user_id
-            )
+            .filter(ChatSession.id == session_id, ChatSession.user_id == user_id)
             .first()
         )
 
@@ -33,22 +23,16 @@ class TicketService:
             user_id=user_id,
             session_id=session_id,
             subject=subject,
-            description=description
+            description=description,
         )
 
         db.add(ticket)
         db.commit()
         db.refresh(ticket)
-
         db.close()
-
         return ticket
 
-    def get_tickets(
-        self,
-        user_id: int
-    ):
-
+    def get_tickets(self, user_id: int):
         db = SessionLocal()
 
         tickets = (
@@ -59,73 +43,46 @@ class TicketService:
         )
 
         db.close()
-
         return tickets
 
-    def get_ticket(
-        self,
-        ticket_id: int,
-        user_id: int
-    ):
-
+    def get_ticket(self, ticket_id: int, user_id: int):
         db = SessionLocal()
 
         ticket = (
             db.query(Ticket)
-            .filter(
-                Ticket.id == ticket_id,
-                Ticket.user_id == user_id
-            )
+            .filter(Ticket.id == ticket_id, Ticket.user_id == user_id)
             .first()
         )
 
         db.close()
-
         return ticket
 
-    def get_active_ticket(
-    self,
-    session_id: int
-    ):
+    def get_active_ticket(self, session_id: int):
+        db = SessionLocal()
 
+        ticket = (
+            db.query(Ticket)
+            .filter(Ticket.session_id == session_id, Ticket.status == "IN_PROGRESS")
+            .first()
+        )
+
+        db.close()
+        return ticket
+
+    def get_unresolved_ticket(self, session_id: int):
         db = SessionLocal()
 
         ticket = (
             db.query(Ticket)
             .filter(
                 Ticket.session_id == session_id,
-                Ticket.status == "IN_PROGRESS"
-            )
-            .first()
-        )
-
-        db.close()
-
-        return ticket
-
-    def get_unresolved_ticket(
-        self,
-        session_id: int
-    ):
-        """
-        An OPEN (waiting for an agent) or IN_PROGRESS ticket for this
-        session. Used to avoid creating duplicate tickets.
-        """
-
-        db = SessionLocal()
-
-        ticket = (
-            db.query(Ticket)
-            .filter(
-                Ticket.session_id == session_id,
-                Ticket.status.in_(["OPEN", "IN_PROGRESS"])
+                Ticket.status.in_(["OPEN", "IN_PROGRESS"]),
             )
             .order_by(Ticket.created_at.desc())
             .first()
         )
 
         db.close()
-
         return ticket
 
 

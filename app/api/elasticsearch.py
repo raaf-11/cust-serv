@@ -1,10 +1,8 @@
 from fastapi import APIRouter
 from app.services.elasticsearch_service import elasticsearch_service
 
-router = APIRouter(
-    prefix="/elasticsearch",
-    tags=["ElasiticSearch"]
-)
+router = APIRouter(prefix="/elasticsearch", tags=["ElasiticSearch"])
+
 
 @router.delete("/index")
 def delete_index():

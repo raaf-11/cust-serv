@@ -1,23 +1,3 @@
-"""
-Run the full evaluation suite against the live pipeline and produce a
-detailed report.
-
-Usage (from the project root, with Qdrant/Elasticsearch/Postgres running
-and the knowledge base already ingested):
-
-    python -m evaluation.run_eval
-    python -m evaluation.run_eval --delay 3 --max-retries 5
-
-Writes a timestamped .json (raw results + report) and .md (human-readable)
-report to results/, and prints a summary to the console.
-
-If you see "I'm currently unavailable" answers in the report, that's
-llm_service.py's fallback for ANY API failure — most commonly a rate
-limit on the LLM provider's free tier when running ~26 calls back to
-back. --delay and --max-retries (below) exist to route around that; see
-evaluation/runner.py's module docstring for details.
-"""
-
 import argparse
 import asyncio
 import json
@@ -57,7 +37,9 @@ def print_summary(report: dict) -> None:
     print(f"Overall accuracy:          {_fmt_pct(report['overall_accuracy'])}")
     print(f"Doc-level hit rate (old):   {_fmt_pct(report['retrieval_hit_rate'])}")
     if report.get("chunk_hit_rate") is not None:
-        print(f"Chunk hit@1 / hit@5:       {_fmt_pct(report['chunk_hit_at_1'])} / {_fmt_pct(report['chunk_hit_rate'])}")
+        print(
+            f"Chunk hit@1 / hit@5:       {_fmt_pct(report['chunk_hit_at_1'])} / {_fmt_pct(report['chunk_hit_rate'])}"
+        )
         print(f"Chunk MRR:                 {report['chunk_mrr']:.3f}")
     print(
         f"Factual answer accuracy:   "
@@ -76,10 +58,14 @@ def print_summary(report: dict) -> None:
     )
     print(f"Avg confidence score:      {report['avg_confidence']:.3f}")
     print(f"Escalation rate:           {_fmt_pct(report['escalation_rate'])}")
-    print(f"False escalation rate:     {_fmt_pct(report['false_escalation_rate'])}"
-          f"  (correct answers that got escalated anyway)")
-    print(f"Missed escalation rate:    {_fmt_pct(report['missed_escalation_rate'])}"
-          f"  (wrong answers shown to the customer, unescalated)")
+    print(
+        f"False escalation rate:     {_fmt_pct(report['false_escalation_rate'])}"
+        f"  (correct answers that got escalated anyway)"
+    )
+    print(
+        f"Missed escalation rate:    {_fmt_pct(report['missed_escalation_rate'])}"
+        f"  (wrong answers shown to the customer, unescalated)"
+    )
     print(
         f"Avg retrieval / generation time: "
         f"{report['avg_retrieval_time_s']:.2f}s / "
@@ -92,22 +78,30 @@ def print_summary(report: dict) -> None:
     print("\nPer category:")
     for category, stats in report["per_category"].items():
         rate = stats["correct"] / stats["total"] if stats["total"] else 0.0
-        print(f"  {category:<20} {stats['correct']}/{stats['total']} ({rate * 100:.0f}%)")
+        print(
+            f"  {category:<20} {stats['correct']}/{stats['total']} ({rate * 100:.0f}%)"
+        )
     print("=" * 60)
 
 
 def write_markdown_report(path: Path, report: dict, results: list[dict]) -> None:
     lines = []
-    lines.append(f"# Evaluation Report — {datetime.now().strftime('%Y-%m-%d %H:%M:%S')}")
+    lines.append(
+        f"# Evaluation Report — {datetime.now().strftime('%Y-%m-%d %H:%M:%S')}"
+    )
     lines.append("")
     lines.append("## Summary")
     lines.append("")
     lines.append(f"- **Total questions:** {report['total_items']}")
     if report.get("skipped"):
         skipped_ids = ", ".join(s["id"] for s in report["skipped"])
-        lines.append(f"- **Skipped (API errors, not scored):** {len(report['skipped'])} ({skipped_ids})")
+        lines.append(
+            f"- **Skipped (API errors, not scored):** {len(report['skipped'])} ({skipped_ids})"
+        )
     lines.append(f"- **Overall accuracy:** {_fmt_pct(report['overall_accuracy'])}")
-    lines.append(f"- **Doc-level hit rate (right PDF in top 5):** {_fmt_pct(report['retrieval_hit_rate'])}")
+    lines.append(
+        f"- **Doc-level hit rate (right PDF in top 5):** {_fmt_pct(report['retrieval_hit_rate'])}"
+    )
     if report.get("chunk_hit_rate") is not None:
         lines.append(
             f"- **Chunk-level hit@1 / hit@5 (answer-bearing chunk retrieved):** "
@@ -148,7 +142,9 @@ def write_markdown_report(path: Path, report: dict, results: list[dict]) -> None
     lines.append("|---|---|---|---|")
     for level, stats in report["per_difficulty"].items():
         rate = stats["correct"] / stats["total"] if stats["total"] else 0.0
-        lines.append(f"| {level} | {stats['correct']} | {stats['total']} | {rate * 100:.0f}% |")
+        lines.append(
+            f"| {level} | {stats['correct']} | {stats['total']} | {rate * 100:.0f}% |"
+        )
     lines.append("")
     lines.append("## Per category")
     lines.append("")
@@ -156,15 +152,23 @@ def write_markdown_report(path: Path, report: dict, results: list[dict]) -> None
     lines.append("|---|---|---|---|")
     for category, stats in report["per_category"].items():
         rate = stats["correct"] / stats["total"] if stats["total"] else 0.0
-        lines.append(f"| {category} | {stats['correct']} | {stats['total']} | {rate * 100:.0f}% |")
+        lines.append(
+            f"| {category} | {stats['correct']} | {stats['total']} | {rate * 100:.0f}% |"
+        )
     lines.append("")
     lines.append("## Per-question detail")
     lines.append("")
-    lines.append("| ID | Category | Question | Result | Confidence | Escalate | Retrieval hit |")
+    lines.append(
+        "| ID | Category | Question | Result | Confidence | Escalate | Retrieval hit |"
+    )
     lines.append("|---|---|---|---|---|---|---|")
     for r in results:
         status = "PASS" if r["is_correct"] else "FAIL"
-        hit = "—" if r["retrieval_hit"] is None else ("yes" if r["retrieval_hit"] else "no")
+        hit = (
+            "—"
+            if r["retrieval_hit"] is None
+            else ("yes" if r["retrieval_hit"] else "no")
+        )
         lines.append(
             f"| {r['id']} | {r['category']} | {r['question']} | {status} | "
             f"{r['confidence']:.2f} | {r['would_escalate']} | {hit} |"
@@ -183,7 +187,9 @@ def write_markdown_report(path: Path, report: dict, results: list[dict]) -> None
         if r["question_type"] == "factual":
             lines.append(f"- Expected answer contains: (see golden_dataset.json)")
         elif r["question_type"] == "out_of_scope":
-            lines.append("- Expected: the bot should say it doesn't have the information (not in the documents)")
+            lines.append(
+                "- Expected: the bot should say it doesn't have the information (not in the documents)"
+            )
         else:
             lines.append(f"- Judge score: {r['judge_score']}")
             lines.append(f"- Judge reasoning: {r['judge_reasoning']}")
@@ -196,27 +202,34 @@ def write_markdown_report(path: Path, report: dict, results: list[dict]) -> None
 def parse_args() -> argparse.Namespace:
     parser = argparse.ArgumentParser(description="Run the RAG eval suite.")
     parser.add_argument(
-        "--delay", type=float, default=DEFAULT_DELAY_BETWEEN_ITEMS_S,
-        help=f"Seconds to wait between questions (default: {DEFAULT_DELAY_BETWEEN_ITEMS_S})."
+        "--delay",
+        type=float,
+        default=DEFAULT_DELAY_BETWEEN_ITEMS_S,
+        help=f"Seconds to wait between questions (default: {DEFAULT_DELAY_BETWEEN_ITEMS_S}).",
     )
     parser.add_argument(
-        "--max-retries", type=int, default=DEFAULT_MAX_RETRIES,
-        help=f"Retries per failed LLM/judge call before giving up (default: {DEFAULT_MAX_RETRIES})."
+        "--max-retries",
+        type=int,
+        default=DEFAULT_MAX_RETRIES,
+        help=f"Retries per failed LLM/judge call before giving up (default: {DEFAULT_MAX_RETRIES}).",
     )
     parser.add_argument(
-        "--backoff-base", type=float, default=DEFAULT_RETRY_BACKOFF_BASE_S,
-        help=f"Base seconds for exponential backoff between retries (default: {DEFAULT_RETRY_BACKOFF_BASE_S})."
+        "--backoff-base",
+        type=float,
+        default=DEFAULT_RETRY_BACKOFF_BASE_S,
+        help=f"Base seconds for exponential backoff between retries (default: {DEFAULT_RETRY_BACKOFF_BASE_S}).",
     )
     parser.add_argument(
-        "--dataset", type=Path, default=DATASET_PATH,
-        help="Golden dataset JSON (default: golden_dataset_v2.json; v1 is golden_dataset.json)."
+        "--dataset",
+        type=Path,
+        default=DATASET_PATH,
+        help="Golden dataset JSON (default: golden_dataset_v2.json; v1 is golden_dataset.json).",
     )
     return parser.parse_args()
 
 
 async def main() -> None:
     args = parse_args()
-
     dataset = load_dataset(args.dataset)
     print(f"Loaded {len(dataset)} golden questions from {args.dataset.name}\n")
 
@@ -242,14 +255,15 @@ async def main() -> None:
     print_summary(report)
 
     if report["skipped"]:
-        print(f"\nSkipped {len(report['skipped'])} question(s) after repeated API errors "
-              f"(not counted in the scores):")
+        print(
+            f"\nSkipped {len(report['skipped'])} question(s) after repeated API errors "
+            f"(not counted in the scores):"
+        )
         for s in report["skipped"]:
             print(f"  {s['id']}: {s['error'][:120]}")
 
     RESULTS_DIR.mkdir(exist_ok=True)
     timestamp = datetime.now().strftime("%Y%m%d_%H%M%S")
-
     json_path = RESULTS_DIR / f"eval_report_{timestamp}.json"
     md_path = RESULTS_DIR / f"eval_report_{timestamp}.md"
 
@@ -257,7 +271,6 @@ async def main() -> None:
         json.dump({"report": report, "results": results}, f, indent=2)
 
     write_markdown_report(md_path, report, results)
-
     print(f"\nSaved detailed report to:\n  {json_path}\n  {md_path}")
 
 

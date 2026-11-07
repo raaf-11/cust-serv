@@ -5,7 +5,6 @@ import ProtectedRoute from "./components/ProtectedRoute";
 import EmployeeDashboard from "./pages/EmployeeDashboard";
 import EmployeeRoute from "./components/auth/EmployeeRoute";
 
-
 function App() {
 
     return (

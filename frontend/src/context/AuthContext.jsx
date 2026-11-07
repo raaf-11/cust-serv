@@ -6,8 +6,6 @@ import {
 
 const AuthContext = createContext();
 
-// Read the saved login synchronously, so a page refresh on /chat or
-// /employee doesn't bounce the user back to the login screen.
 function readSavedUser() {
     try {
         const saved = localStorage.getItem("user");

@@ -1,0 +1,13 @@
+# Only app/, data/ and requirements.txt are copied into the backend image;
+# keep everything else out of the build context so builds stay fast.
+.git
+.env
+venv
+**/__pycache__
+.pytest_cache
+frontend
+results
+evaluation
+tests
+escalation-fix
+*.zip

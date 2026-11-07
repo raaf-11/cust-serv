@@ -3,85 +3,49 @@ from app.models.conversation import Conversation
 
 
 class ConversationService:
-
-    def save_conversation(
-        self,
-        session_id: int,
-        sender: str,
-        content: str
-    ):
-
+    def save_conversation(self, session_id: int, sender: str, content: str):
         db = SessionLocal()
 
         conversation = Conversation(
-            session_id=session_id,
-            sender=sender,
-            content=content
+            session_id=session_id, sender=sender, content=content
         )
 
         db.add(conversation)
         db.commit()
         db.close()
 
-    def get_recent_conversations(
-        self,
-        session_id: int,
-        limit: int = 10
-    ) -> str:
-
+    def get_recent_conversations(self, session_id: int, limit: int = 10) -> str:
         db = SessionLocal()
 
         conversations = (
             db.query(Conversation)
-            .filter(
-                Conversation.session_id == session_id
-            )
-            .order_by(
-                Conversation.created_at.desc()
-            )
+            .filter(Conversation.session_id == session_id)
+            .order_by(Conversation.created_at.desc())
             .limit(limit)
             .all()
         )
 
         db.close()
-
         conversations.reverse()
-
         history = ""
 
         for conversation in conversations:
-            history += (
-                f"{conversation.sender}: "
-                f"{conversation.content}\n"
-            )
+            history += f"{conversation.sender}: " f"{conversation.content}\n"
 
         return history
 
-    def get_recent_ai_messages(
-        self,
-        session_id: int,
-        limit: int = 5
-    ) -> list[str]:
-        """Most recent bot replies in this session, oldest first."""
-
+    def get_recent_ai_messages(self, session_id: int, limit: int = 5) -> list[str]:
         db = SessionLocal()
 
         conversations = (
             db.query(Conversation)
-            .filter(
-                Conversation.session_id == session_id,
-                Conversation.sender == "AI"
-            )
-            .order_by(
-                Conversation.created_at.desc(),
-                Conversation.id.desc()
-            )
+            .filter(Conversation.session_id == session_id, Conversation.sender == "AI")
+            .order_by(Conversation.created_at.desc(), Conversation.id.desc())
             .limit(limit)
             .all()
         )
 
         db.close()
-
         return [c.content for c in reversed(conversations)]
 
 
